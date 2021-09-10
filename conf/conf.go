@@ -9,7 +9,7 @@ var _conf map[string]interface{}
 
 var lock sync.Mutex
 
-func Load() {
+func Load(conf map[string]interface{}) {
 
 	_conf = map[string]interface{}{
 
@@ -20,6 +20,12 @@ func Load() {
 		"captcha_key":       "_captcha",                         //验证码的key
 		"captcha_lifetime":  os.Getenv("CAPTCHA_LIFETIME"),      //验证码过期时间
 		"lock_prefix":       os.Getenv("LOCK_PREFIX"),           //锁前缀
+	}
+
+	for s, i := range conf {
+
+		_conf[s] = i
+
 	}
 
 }

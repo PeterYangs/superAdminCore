@@ -1,8 +1,10 @@
 package core
 
 import (
+	conf2 "github.com/PeterYangs/superAdminCore/conf"
 	"github.com/PeterYangs/superAdminCore/route"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"log"
 	http_ "net/http"
 	"os"
@@ -13,6 +15,12 @@ type Core struct {
 }
 
 func NewCore() *Core {
+
+	err := godotenv.Load("./.env")
+
+	if err != nil {
+		panic("配置文件加载失败")
+	}
 
 	return &Core{
 		Engine: gin.Default(),
@@ -25,6 +33,12 @@ func (core *Core) LoadRoute(routes func(route.Group)) *Core {
 	route.Load(core.Engine, routes)
 
 	return core
+}
+
+func (core *Core) LoadConf(conf map[string]interface{}) {
+
+	conf2.Load(conf)
+
 }
 
 func (core *Core) Start() {
