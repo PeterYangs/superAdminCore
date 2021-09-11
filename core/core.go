@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/PeterYangs/gcmd2"
 	"github.com/PeterYangs/superAdminCore/component/logs"
-	conf2 "github.com/PeterYangs/superAdminCore/conf"
+	"github.com/PeterYangs/superAdminCore/conf"
 	"github.com/PeterYangs/superAdminCore/crontab"
 	"github.com/PeterYangs/superAdminCore/kernel"
 	"github.com/PeterYangs/superAdminCore/lib/kill"
@@ -72,7 +72,7 @@ func (core *Core) LoadRoute(routes func(route.Group)) *Core {
 // LoadConf 加载配置
 func (core *Core) LoadConf(c func() map[string]interface{}) *Core {
 
-	conf2.Load(c())
+	conf.Load(c())
 
 	return core
 }
