@@ -7,6 +7,9 @@ import (
 	conf2 "github.com/PeterYangs/superAdminCore/conf"
 	"github.com/PeterYangs/superAdminCore/crontab"
 	"github.com/PeterYangs/superAdminCore/kernel"
+	"github.com/PeterYangs/superAdminCore/queue"
+	"github.com/PeterYangs/superAdminCore/queue/register"
+	"github.com/PeterYangs/superAdminCore/queue/template"
 	"github.com/PeterYangs/superAdminCore/redis"
 	"github.com/PeterYangs/superAdminCore/route"
 	"github.com/PeterYangs/tools/http"
@@ -38,7 +41,7 @@ var isRun = false
 
 func NewCore() *Core {
 
-	err := godotenv.Load("./.env")
+	err := godotenv.Load(".env")
 
 	if err != nil {
 		panic("配置文件加载失败")
@@ -79,9 +82,9 @@ func (core *Core) LoadRoute(routes func(route.Group)) *Core {
 }
 
 // LoadConf 加载配置
-func (core *Core) LoadConf(conf map[string]interface{}) *Core {
+func (core *Core) LoadConf(c func() map[string]interface{}) *Core {
 
-	conf2.Load(conf)
+	conf2.Load(c())
 
 	return core
 }
@@ -90,6 +93,17 @@ func (core *Core) LoadConf(conf map[string]interface{}) *Core {
 func (core *Core) LoadCrontab(c func(*crontab.Crontab)) *Core {
 
 	core.Crontab = c
+
+	return core
+}
+
+// LoadQueues 加载消息队列
+func (core *Core) LoadQueues(queues map[string]template.Task) *Core {
+
+	for s, task := range queues {
+
+		register.Register[s] = task
+	}
 
 	return core
 }
@@ -138,6 +152,9 @@ func (core *Core) logInit() {
 }
 
 func (core *Core) http() {
+
+	//加载全局中间件
+	kernel.Load()
 
 	srv := &http_.Server{}
 
@@ -259,6 +276,7 @@ func (core *Core) boot() {
 
 				//队列启动
 				//queueInit(cxt, wait)
+				core.queueInit()
 
 				//记录pid和启动命令
 				core.runInit()
@@ -267,6 +285,22 @@ func (core *Core) boot() {
 
 			}
 		}
+
+	}
+
+}
+
+func (core *Core) queueInit() {
+
+	//延迟队列的标记
+	core.Wait.Add(1)
+
+	for i := 0; i < cast.ToInt(os.Getenv("QUEUE_NUM")); i++ {
+
+		core.Wait.Add(1)
+
+		//启动消息队列
+		go queue.Run(core.Cxt, core.Wait)
 
 	}
 

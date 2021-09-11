@@ -195,6 +195,8 @@ func (cc *_connect) LLen(cxt context.Context, key string) *redis.IntCmd {
 
 func (cc *_connect) ZAdd(cxt context.Context, key string, members ...*redis.Z) *redis.IntCmd {
 
+	//fmt.Println(conf.Get("redis_prefix"))
+
 	return cc.connect.ZAdd(cxt, conf.Get("redis_prefix").(string)+key, members...)
 }
 

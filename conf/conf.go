@@ -1,11 +1,12 @@
 package conf
 
 import (
+	"fmt"
 	"os"
 	"sync"
 )
 
-var _conf map[string]interface{}
+var _conf = make(map[string]interface{})
 
 var lock sync.Mutex
 
@@ -22,10 +23,21 @@ func Load(conf map[string]interface{}) {
 		"lock_prefix":       os.Getenv("LOCK_PREFIX"),           //锁前缀
 	}
 
+	//fmt.Println("---------------------")
+
+	//fmt.Println(_conf,"----------")
+
 	for s, i := range conf {
 
 		_conf[s] = i
 
+	}
+
+	//fmt.Println(_conf,"----------")
+
+	for s, i := range _conf {
+
+		fmt.Println(s, "---------------", i)
 	}
 
 }
