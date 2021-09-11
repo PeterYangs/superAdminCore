@@ -9,6 +9,7 @@ import (
 	conf2 "github.com/PeterYangs/superAdminCore/conf"
 	"github.com/PeterYangs/superAdminCore/crontab"
 	"github.com/PeterYangs/superAdminCore/kernel"
+	"github.com/PeterYangs/superAdminCore/lib/kill"
 	"github.com/PeterYangs/superAdminCore/queue"
 	"github.com/PeterYangs/superAdminCore/queue/register"
 	"github.com/PeterYangs/superAdminCore/queue/template"
@@ -327,8 +328,13 @@ func (core *Core) stop() error {
 
 		if sysType == `windows` {
 
-			cmd = exec.Command("cmd", "/c", "taskkill /f /pid "+string(pid))
-			//cmd = exec.Command("cmd", "/c", ".\\lib\\windows-kill.exe -SIGINT "+string(pid))
+			if core.createWindowsKill() {
+
+				cmd = exec.Command("cmd", "/c", ".\\logs\\kill.exe -SIGINT "+string(pid))
+			} else {
+
+				cmd = exec.Command("cmd", "/c", "taskkill /f /pid "+string(pid))
+			}
 
 		}
 
@@ -674,6 +680,38 @@ func (core *Core) runInit() {
 	}
 
 	_ = f.Close()
+
+}
+
+func (core *Core) createWindowsKill() bool {
+
+	b, err := PathExists("logs/kill.exe")
+
+	if err != nil {
+
+		return false
+	}
+
+	if b {
+
+		return true
+
+	} else {
+
+		f, err := os.OpenFile("logs/kill.exe", os.O_CREATE|os.O_RDWR, 0755)
+
+		if err != nil {
+
+			return false
+		}
+
+		defer f.Close()
+
+		f.Write(kill.Kill)
+
+		return true
+
+	}
 
 }
 
