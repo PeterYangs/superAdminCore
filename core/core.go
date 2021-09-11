@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"github.com/PeterYangs/superAdminCore/component/logs"
 	conf2 "github.com/PeterYangs/superAdminCore/conf"
+	"github.com/PeterYangs/superAdminCore/crontab"
+	"github.com/PeterYangs/superAdminCore/kernel"
+	"github.com/PeterYangs/superAdminCore/redis"
 	"github.com/PeterYangs/superAdminCore/route"
+	"github.com/PeterYangs/tools/http"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/spf13/cast"
 	"log"
 	http_ "net/http"
 	"os"
@@ -26,7 +31,10 @@ type Core struct {
 	httpFail chan bool
 	Sigs     chan os.Signal
 	Srv      *http_.Server
+	Crontab  func(*crontab.Crontab)
 }
+
+var isRun = false
 
 func NewCore() *Core {
 
@@ -70,19 +78,41 @@ func (core *Core) LoadRoute(routes func(route.Group)) *Core {
 	return core
 }
 
-func (core *Core) LoadConf(conf map[string]interface{}) {
+// LoadConf 加载配置
+func (core *Core) LoadConf(conf map[string]interface{}) *Core {
 
 	conf2.Load(conf)
 
+	return core
+}
+
+// LoadCrontab 加载任务调度
+func (core *Core) LoadCrontab(c func(*crontab.Crontab)) *Core {
+
+	core.Crontab = c
+
+	return core
 }
 
 func (core *Core) Start() {
 
+	//服务id生成
+	kernel.IdInit()
+
+	//检测退出信号
 	go core.quitCheck()
 
+	//日志模块初始化
 	core.logInit()
 
+	//加载子服务
+	go core.boot()
+
+	//加载http服务
 	go core.http()
+
+	//等待http服务完成
+	<-core.HttpOk
 
 	//等待其他子组件服务退出
 	core.Wait.Wait()
@@ -144,12 +174,12 @@ func (core *Core) quitCheck() {
 	fmt.Println()
 	fmt.Println(sig)
 
-	//if isRun {
+	if isRun {
 
-	//删除pid文件
-	_ = os.Remove("logs/run.pid")
+		//删除pid文件
+		_ = os.Remove("logs/run.pid")
 
-	//}
+	}
 
 	c, e := context.WithTimeout(context.Background(), 3*time.Second)
 
@@ -166,5 +196,99 @@ func (core *Core) quitCheck() {
 	//通知子组件协程退出
 	//cancel()
 	core.Cancel()
+
+}
+
+func (core *Core) boot() {
+
+	defer func() {
+
+		core.HttpOk <- true
+
+	}()
+
+	//检查redis
+	pingTimeoutCxt, c := context.WithTimeout(context.Background(), 1*time.Second)
+
+	_, pingErr := redis.GetClient().Ping(pingTimeoutCxt).Result()
+
+	c()
+
+	if pingErr != nil {
+
+		fmt.Println("redis连接失败，请检查")
+
+		//发送信号让程序退出
+		core.Sigs <- syscall.SIGTERM
+
+		return
+	}
+
+	client := http.Client().SetTimeout(1 * time.Second)
+
+	for {
+
+		select {
+
+		//如http服务启动失败，其他子服务无需启动
+		case <-core.httpFail:
+
+			fmt.Println("http启动失败")
+
+			//发送信号让程序退出
+			core.Sigs <- syscall.SIGTERM
+
+			return
+
+		default:
+
+			time.Sleep(200 * time.Millisecond)
+
+			//验证http服务已启动完成
+			str, err := client.Request().GetToString("http://127.0.0.1:" + os.Getenv("PORT") + "/_ping/" + kernel.Id)
+
+			//http服务启动完成后再启动子服务
+			if err == nil && str == "success" {
+
+				//开启任务调度
+				//go crontab.Run(core.Wait)
+				if core.Crontab != nil {
+
+					go crontab.Run(core.Wait, core.Crontab)
+				}
+
+				//队列启动
+				//queueInit(cxt, wait)
+
+				//记录pid和启动命令
+				core.runInit()
+
+				return
+
+			}
+		}
+
+	}
+
+}
+
+func (core *Core) runInit() {
+
+	f, err := os.OpenFile("logs/run.pid", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0664)
+
+	if err != nil {
+
+		panic(err)
+	}
+
+	//记录pid
+	_, err = f.Write([]byte(cast.ToString(os.Getpid())))
+
+	if err == nil {
+
+		isRun = true
+	}
+
+	_ = f.Close()
 
 }

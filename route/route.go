@@ -188,7 +188,20 @@ func Load(rr *gin.Engine, routes func(g Group)) {
 
 	_r.Group("", func(global Group) {
 
-		//_init(global)
+		//判断http服务已启动接口
+		global.Registered(GET, "/_ping/:id", func(c *contextPlus.Context) *response.Response {
+
+			id := c.Param("id")
+
+			//判断服务id
+			if id == kernel.Id {
+
+				return response.Resp().String("success")
+			}
+
+			return response.Resp().String("fail")
+
+		}).Bind()
 
 		routes(global)
 
