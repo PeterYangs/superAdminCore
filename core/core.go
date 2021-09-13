@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PeterYangs/gcmd2"
+	"github.com/PeterYangs/superAdminCore/artisan"
 	"github.com/PeterYangs/superAdminCore/component/logs"
 	"github.com/PeterYangs/superAdminCore/conf"
 	"github.com/PeterYangs/superAdminCore/crontab"
@@ -167,7 +168,7 @@ func (core *Core) Start() {
 
 	case "artisan":
 
-		//artisan.Artisan()
+		artisan.Artisan()
 
 	default:
 
