@@ -193,7 +193,7 @@ func dealDay(s *schedule, now time.Time) {
 
 	if s.hour == nil {
 
-		if now.Hour() == 0 {
+		if now.Hour() == 0 && now.Minute() == 0 {
 
 			if s.day.every {
 
