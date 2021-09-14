@@ -2,6 +2,7 @@ package artisan
 
 import (
 	"fmt"
+	"github.com/PeterYangs/superAdminCore/artisan/key"
 	"github.com/PeterYangs/superAdminCore/artisan/migrates"
 	"github.com/PeterYangs/superAdminCore/artisan/queue"
 	"github.com/manifoldco/promptui"
@@ -19,6 +20,7 @@ func RunArtisan(artisan ...Artisan) {
 	list := []Artisan{
 		new(migrates.MigrateRun),
 		new(queue.QueueRun),
+		new(key.Key),
 	}
 
 	//加载自定义命令
