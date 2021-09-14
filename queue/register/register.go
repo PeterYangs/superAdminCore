@@ -3,6 +3,7 @@ package register
 import (
 	"github.com/PeterYangs/superAdminCore/queue/task/demo"
 	"github.com/PeterYangs/superAdminCore/queue/template"
+	//namespace
 	"sync"
 )
 

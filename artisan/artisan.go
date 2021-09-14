@@ -3,6 +3,7 @@ package artisan
 import (
 	"fmt"
 	"github.com/PeterYangs/superAdminCore/artisan/migrates"
+	"github.com/PeterYangs/superAdminCore/artisan/queue"
 	"github.com/manifoldco/promptui"
 )
 
@@ -30,17 +31,17 @@ func Artisan() {
 
 		new(migrates.MigrateRun).ArtisanRun()
 
-		//case "数据填充":
-		//
-		//	new(bin2.Bin).Run()
-		//
-		//case "生成key":
-		//
-		//	new(key.Key).Run()
-		//
-		//case "生成任务类":
-		//
-		//	new(task.TaskCmd).Run()
+	//case "数据填充":
+	//
+	//	new(bin2.Bin).Run()
+	//
+	//case "生成key":
+	//
+	//	new(key.Key).Run()
+	//
+	case "生成任务类":
+
+		new(queue.QueueRun).ArtisanRun()
 
 	}
 

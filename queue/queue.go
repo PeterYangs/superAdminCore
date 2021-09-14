@@ -300,6 +300,8 @@ func (j *job) Run() {
 
 			queue = os.Getenv("QUEUE_PREFIX") + os.Getenv("DEFAULT_QUEUE")
 
+			j.Queue_ = os.Getenv("DEFAULT_QUEUE")
+
 		} else {
 
 			queue = os.Getenv("QUEUE_PREFIX") + j.Queue_
@@ -321,6 +323,8 @@ func (j *job) Run() {
 		if j.Queue_ == "" {
 
 			queue = os.Getenv("QUEUE_PREFIX") + "delay"
+
+			j.Queue_ = os.Getenv("DEFAULT_QUEUE")
 
 		} else {
 
