@@ -11,5 +11,6 @@ var Queues = map[string]template.Task{
 	"Demo2Task": &demo2.Demo2Task{Parameters: &demo2.Parameter{}},
 
 	"email": &email.EmailTask{Parameters: &email.Parameter{}},
+
 	//taskRegister
 }

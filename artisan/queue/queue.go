@@ -15,6 +15,11 @@ import (
 type QueueRun struct {
 }
 
+func (q QueueRun) GetName() string {
+
+	return "生成任务类"
+}
+
 func (q QueueRun) ArtisanRun() {
 
 	prompt := promptui.Prompt{

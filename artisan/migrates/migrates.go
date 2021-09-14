@@ -17,6 +17,11 @@ import (
 type MigrateRun struct {
 }
 
+func (m MigrateRun) GetName() string {
+
+	return "数据库迁移"
+}
+
 func (m MigrateRun) ArtisanRun() {
 
 	prompt := promptui.Select{

@@ -46,6 +46,7 @@ type Core struct {
 	Srv      *http_.Server
 	Crontab  func(*crontab.Crontab)
 	Routes   func(route.Group)
+	Artisan  func() []artisan.Artisan
 }
 
 var isRun = false
@@ -102,6 +103,14 @@ func (core *Core) LoadQueues(queues map[string]template.Task) *Core {
 func (core *Core) LoadMiddleware(list func() []contextPlus.HandlerFunc) *Core {
 
 	kernel.Load(list)
+
+	return core
+}
+
+// LoadArtisan 加载自定义命令
+func (core *Core) LoadArtisan(a func() []artisan.Artisan) *Core {
+
+	core.Artisan = a
 
 	return core
 }
@@ -177,7 +186,7 @@ func (core *Core) Start() {
 
 	case "artisan":
 
-		artisan.Artisan()
+		artisan.RunArtisan(core.Artisan()...)
 
 	default:
 
