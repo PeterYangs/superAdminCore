@@ -56,7 +56,7 @@ package ` + result + `
 	
 import (	
 
-	"` + mod.GetModuleName() + `/queue/task"
+	"github.com/PeterYangs/superAdminCore/queue/task"
 
 )
 	
