@@ -8,6 +8,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/artisan"
 	"github.com/PeterYangs/superAdminCore/component/logs"
 	"github.com/PeterYangs/superAdminCore/conf"
+	"github.com/PeterYangs/superAdminCore/contextPlus"
 	"github.com/PeterYangs/superAdminCore/crontab"
 	"github.com/PeterYangs/superAdminCore/kernel"
 	"github.com/PeterYangs/superAdminCore/lib/kill"
@@ -93,6 +94,14 @@ func (core *Core) LoadQueues(queues map[string]template.Task) *Core {
 
 		register.Register[s] = task
 	}
+
+	return core
+}
+
+// LoadMiddleware 加载全局中间件
+func (core *Core) LoadMiddleware(list func() []contextPlus.HandlerFunc) *Core {
+
+	kernel.Load(list)
 
 	return core
 }
@@ -511,7 +520,7 @@ func (core *Core) logInit() {
 func (core *Core) http() {
 
 	//加载全局中间件
-	kernel.Load()
+	//kernel.Load()
 
 	srv := &http_.Server{}
 
