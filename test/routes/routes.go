@@ -21,4 +21,9 @@ func Routes(r route.Group) {
 		return response.Resp().Api(1, "success", "")
 	}).Bind()
 
+	r.Registered(route.GET, "/ip", func(c *contextPlus.Context) *response.Response {
+
+		return response.Resp().Api(1, "success", c.ClientIP())
+	}).Bind()
+
 }

@@ -464,7 +464,7 @@ func (core *Core) serverStart() {
 
 	httpFail := make(chan bool)
 
-	core.Engine = gin.Default()
+	core.Engine = gin.New()
 
 	route.Load(core.Engine, core.Routes)
 
