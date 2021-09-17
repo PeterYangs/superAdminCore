@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/PeterYangs/superAdminCore/component/logs"
 	"github.com/PeterYangs/superAdminCore/contextPlus"
 	"github.com/PeterYangs/superAdminCore/queue"
 	"github.com/PeterYangs/superAdminCore/response"
@@ -24,6 +25,13 @@ func Routes(r route.Group) {
 	r.Registered(route.GET, "/ip", func(c *contextPlus.Context) *response.Response {
 
 		return response.Resp().Api(1, "success", c.ClientIP())
+	}).Bind()
+
+	r.Registered(route.GET, "/log", func(c *contextPlus.Context) *response.Response {
+
+		logs.NewLogs().Debug("Debug")
+
+		return response.Resp().Api(1, "success", "")
 	}).Bind()
 
 }

@@ -186,13 +186,48 @@ func (core *Core) Start() {
 
 	case "artisan":
 
+		core.loadService()
+
 		artisan.RunArtisan(core.Artisan()...)
+
+		core.Sigs <- syscall.SIGINT
+
+		core.Wait.Wait()
 
 	default:
 
 		fmt.Println("命令不存在")
 
 	}
+
+}
+
+func (core *Core) loadService() {
+
+	//检测退出信号
+	sigs := make(chan os.Signal, 1)
+
+	//退出信号
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	//服务退出上下文，主要作用是让其他子组件协程安全退出
+	cxt, cancel := context.WithCancel(context.Background())
+
+	wait := sync.WaitGroup{}
+
+	core.Cxt = cxt
+
+	core.Cancel = cancel
+
+	core.Wait = &wait
+
+	core.Sigs = sigs
+
+	//检测退出信号
+	go core.quitCheck()
+
+	//日志模块初始化
+	core.logInit()
 
 }
 
@@ -480,16 +515,6 @@ func (core *Core) serverStart() {
 
 	core.Sigs = sigs
 
-	//&Core{
-	//	Engine:   gin.Default(),
-	//	Cxt:      cxt,
-	//	Cancel:   cancel,
-	//	Wait:     &wait,
-	//	HttpOk:   httpOk,
-	//	httpFail: httpFail,
-	//	Sigs:     sigs,
-	//}
-
 	//检测退出信号
 	go core.quitCheck()
 
@@ -573,16 +598,20 @@ func (core *Core) quitCheck() {
 
 	}
 
-	c, e := context.WithTimeout(context.Background(), 3*time.Second)
+	c, e := context.WithTimeout(context.Background(), 8*time.Second)
 
 	defer e()
 
-	//关闭http服务
-	err := core.Srv.Shutdown(c)
+	if core.Srv != nil {
 
-	if err != nil {
+		//关闭http服务
+		err := core.Srv.Shutdown(c)
 
-		log.Println(err)
+		if err != nil {
+
+			log.Println(err)
+		}
+
 	}
 
 	//通知子组件协程退出
