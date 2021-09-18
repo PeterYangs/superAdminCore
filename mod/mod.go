@@ -19,6 +19,7 @@ func exitf(beforeExitFunc func(), code int, format string, args ...interface{}) 
 	//os.Exit(code)
 }
 
+// GetModuleName 获取当前项目的包名称
 func GetModuleName() string {
 	goModBytes, err := ioutil.ReadFile("go.mod")
 	if err != nil {

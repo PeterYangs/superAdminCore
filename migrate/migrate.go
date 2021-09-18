@@ -14,16 +14,6 @@ var batch = 1
 
 var once sync.Once
 
-//func init() {
-//
-//	//加载配置文件
-//	err := godotenv.Load("./.env")
-//	if err != nil {
-//		panic("配置文件加载失败")
-//	}
-//
-//}
-
 type NullValue int
 
 const Null NullValue = 0x00000

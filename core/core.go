@@ -499,7 +499,15 @@ func (core *Core) serverStart() {
 
 	httpFail := make(chan bool)
 
-	core.Engine = gin.New()
+	if os.Getenv("APP_DEBUG") == "true" {
+
+		core.Engine = gin.Default()
+
+	} else {
+
+		core.Engine = gin.New()
+
+	}
 
 	route.Load(core.Engine, core.Routes)
 
