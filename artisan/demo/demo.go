@@ -1,7 +1,5 @@
 package demo
 
-import "github.com/PeterYangs/superAdminCore/component/logs"
-
 type Demo struct {
 }
 
@@ -12,5 +10,4 @@ func (d Demo) GetName() string {
 
 func (d Demo) ArtisanRun() {
 
-	logs.NewLogs().Debug("demo")
 }
