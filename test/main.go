@@ -28,6 +28,9 @@ func main() {
 	//加载自定义命令
 	c.LoadArtisan(artisan.Artisan)
 
+	//加载自定义服务
+	//c.LoadServices(demo.NewDemo())
+
 	//启动
 	c.Start()
 

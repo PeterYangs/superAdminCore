@@ -17,9 +17,11 @@ import (
 	"github.com/PeterYangs/superAdminCore/queue/template"
 	"github.com/PeterYangs/superAdminCore/redis"
 	"github.com/PeterYangs/superAdminCore/route"
+	"github.com/PeterYangs/superAdminCore/service"
 	"github.com/PeterYangs/tools"
 	"github.com/PeterYangs/tools/file/read"
 	"github.com/PeterYangs/tools/http"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cast"
@@ -36,17 +38,19 @@ import (
 )
 
 type Core struct {
-	Engine   *gin.Engine
-	Cxt      context.Context
-	Cancel   context.CancelFunc
-	Wait     *sync.WaitGroup
-	HttpOk   chan bool
-	httpFail chan bool
-	Sigs     chan os.Signal
-	Srv      *http_.Server
-	Crontab  func(*crontab.Crontab)
-	Routes   func(route.Group)
-	Artisan  func() []artisan.Artisan
+	Engine      *gin.Engine
+	Cxt         context.Context
+	Cancel      context.CancelFunc
+	Wait        *sync.WaitGroup
+	HttpOk      chan bool
+	httpFail    chan bool
+	Sigs        chan os.Signal
+	Srv         *http_.Server
+	Crontab     func(*crontab.Crontab)
+	Routes      func(route.Group)
+	Artisan     func() []artisan.Artisan
+	serviceList []service.Service //启动时加载的服务
+	debug       bool              //是否打开性能调试
 }
 
 var isRun = false
@@ -200,6 +204,21 @@ func (core *Core) Start() {
 
 	}
 
+}
+
+// LoadServices 加载http启动时的服务
+func (core *Core) LoadServices(serv ...service.Service) *Core {
+
+	core.serviceList = serv
+
+	return core
+}
+
+func (core *Core) Debug() *Core {
+
+	core.debug = true
+
+	return core
 }
 
 func (core *Core) loadService() {
@@ -509,6 +528,11 @@ func (core *Core) serverStart() {
 
 	}
 
+	if core.debug {
+		//性能调试
+		pprof.Register(core.Engine)
+	}
+
 	route.Load(core.Engine, core.Routes)
 
 	core.Cxt = cxt
@@ -687,11 +711,17 @@ func (core *Core) boot() {
 				}
 
 				//队列启动
-				//queueInit(cxt, wait)
 				core.queueInit()
 
 				//记录pid和启动命令
 				core.runInit()
+
+				//加载用户自定义服务
+				for _, s := range core.serviceList {
+
+					s.Load(core.Cxt)
+
+				}
 
 				return
 
