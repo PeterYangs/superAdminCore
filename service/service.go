@@ -1,7 +1,10 @@
 package service
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
 type Service interface {
-	Load(cxt context.Context)
+	Load(cxt context.Context, wait *sync.WaitGroup)
 }

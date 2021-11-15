@@ -719,7 +719,7 @@ func (core *Core) boot() {
 				//加载用户自定义服务
 				for _, s := range core.serviceList {
 
-					s.Load(core.Cxt)
+					s.Load(core.Cxt, core.Wait)
 
 				}
 

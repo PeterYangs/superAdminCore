@@ -3,6 +3,7 @@ package demo
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -14,15 +15,23 @@ func NewDemo() *Demo {
 	return &Demo{}
 }
 
-func (d *Demo) Load(cxt context.Context) {
+func (d *Demo) Load(cxt context.Context, wait *sync.WaitGroup) {
 
 	fmt.Println("加载自定义服务")
+
+	wait.Add(1)
 
 	go func() {
 
 		defer func() {
 
+			fmt.Println("自定义服务等待")
+
+			time.Sleep(1 * time.Second)
+
 			fmt.Println("自定义服务退出")
+
+			wait.Done()
 
 		}()
 
