@@ -7,6 +7,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/model"
 	"github.com/PeterYangs/tools"
 	"github.com/spf13/cast"
+	"strings"
 	"sync"
 )
 
@@ -34,6 +35,7 @@ const (
 	String    Types = "varchar"
 	Text      Types = "text"
 	Timestamp Types = "timestamp"
+	Enum      Types = "enum"
 )
 
 func (t Types) ToString() string {
@@ -59,7 +61,8 @@ type field struct {
 	tag          Tag
 	defaultValue interface{}
 	comment      string
-	unique       bool //唯一索引
+	unique       bool     //唯一索引
+	enumList     []string //枚举列表
 }
 
 func getBatch() {
@@ -162,6 +165,16 @@ func (c *Migrate) BigInteger(column string) *field {
 func (c *Migrate) String(column string, length int) *field {
 
 	f := &field{column: column, types: String, length: length, tag: CREATE}
+
+	c.fields = append(c.fields, f)
+
+	return f
+
+}
+
+func (c *Migrate) Enum(column string, allowed []string) *field {
+
+	f := &field{column: column, types: Enum, tag: CREATE, enumList: allowed}
 
 	c.fields = append(c.fields, f)
 
@@ -450,6 +463,19 @@ func setColumnAttr(f *field) string {
 	case Timestamp:
 
 		str += " `" + f.column + "` " + f.types.ToString() + " NULL "
+
+		break
+
+	case Enum:
+
+		enumTemp := make([]string, len(f.enumList))
+
+		for i, s := range f.enumList {
+
+			enumTemp[i] = `'` + strings.Replace(s, `'`, `\'`, -1) + `'`
+		}
+
+		str += " `" + f.column + "` " + "enum(" + tools.Join(`,`, enumTemp) + ")" + " "
 
 		break
 
