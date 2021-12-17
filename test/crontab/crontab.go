@@ -15,4 +15,9 @@ func Crontab(crontab *crontab.Crontab) {
 
 	})
 
+	crontab.NewSchedule().EveryMinuteAt(2).Function(func() {
+
+		fmt.Println("每两分钟")
+	})
+
 }

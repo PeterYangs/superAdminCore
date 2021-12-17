@@ -24,7 +24,7 @@ type schedule struct {
 	week    *number //0-6
 	crontab *Crontab
 	fn      func()
-	first   bool
+	//first   bool
 }
 
 type number struct {
@@ -40,22 +40,17 @@ type between struct {
 
 func (c *Crontab) NewSchedule() *schedule {
 
-	return &schedule{
+	s := &schedule{
 		crontab: c,
-		first:   true,
 	}
+
+	c.schedules = append(c.schedules, s)
+
+	return s
 }
 
 // EveryDay 每天
 func (s *schedule) EveryDay() *schedule {
-
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
 
 	s.day = &number{
 		every: true,
@@ -69,14 +64,6 @@ func (s *schedule) EveryDay() *schedule {
 // DayAt 某天
 func (s *schedule) DayAt(day int) *schedule {
 
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
-
 	s.day = &number{
 
 		value: day,
@@ -89,14 +76,6 @@ func (s *schedule) DayAt(day int) *schedule {
 // EveryDayAt 每几天
 func (s *schedule) EveryDayAt(day int) *schedule {
 
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
-
 	s.day = &number{
 		value: day,
 		every: true,
@@ -108,14 +87,6 @@ func (s *schedule) EveryDayAt(day int) *schedule {
 
 // DayBetween 天，时间区间
 func (s *schedule) DayBetween(min, max int) *schedule {
-
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
 
 	s.day = &number{
 		between: &between{
@@ -131,14 +102,6 @@ func (s *schedule) DayBetween(min, max int) *schedule {
 // EveryHour 每小时
 func (s *schedule) EveryHour() *schedule {
 
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
-
 	s.hour = &number{
 		every: true,
 		value: 1,
@@ -151,14 +114,6 @@ func (s *schedule) EveryHour() *schedule {
 // HourlyAt 某一个小时
 func (s *schedule) HourlyAt(hour int) *schedule {
 
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
-
 	s.hour = &number{
 		value: hour,
 	}
@@ -168,14 +123,6 @@ func (s *schedule) HourlyAt(hour int) *schedule {
 
 // EveryHourAt 每几个小时
 func (s *schedule) EveryHourAt(hour int) *schedule {
-
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
 
 	s.hour = &number{
 		value: hour,
@@ -188,14 +135,6 @@ func (s *schedule) EveryHourAt(hour int) *schedule {
 
 // HourBetween 小时，时间区间
 func (s *schedule) HourBetween(min, max int) *schedule {
-
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
 
 	s.hour = &number{
 		between: &between{
@@ -211,14 +150,6 @@ func (s *schedule) HourBetween(min, max int) *schedule {
 // EveryMinute 每分钟
 func (s *schedule) EveryMinute() *schedule {
 
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
-
 	s.minute = &number{
 		value: 1,
 		every: true,
@@ -230,14 +161,6 @@ func (s *schedule) EveryMinute() *schedule {
 // EveryMinuteAt 每几分钟
 func (s *schedule) EveryMinuteAt(minute int) *schedule {
 
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
-
 	s.minute = &number{
 		value: minute,
 		every: true,
@@ -248,14 +171,6 @@ func (s *schedule) EveryMinuteAt(minute int) *schedule {
 
 // MinuteAt 某个分钟时间点
 func (s *schedule) MinuteAt(minute int) *schedule {
-
-	if s.first {
-
-		s.first = false
-
-		s.crontab.schedules = append(s.crontab.schedules, s)
-
-	}
 
 	s.minute = &number{
 		value: minute,
