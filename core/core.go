@@ -346,7 +346,7 @@ func (core *Core) block(args ...string) {
 
 	}
 
-	if sysType == `windows` {
+	if sysType == `windows` || sysType == `darwin` {
 
 		core.normal(args...)
 
