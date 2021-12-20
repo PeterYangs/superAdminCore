@@ -23,5 +23,5 @@ func Cache() CacheContract {
 
 	}
 
-	return nil
+	return redisCache.NewRedisCache()
 }
