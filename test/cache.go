@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/PeterYangs/superAdminCore/cache"
 	"github.com/PeterYangs/superAdminCore/core"
 	"github.com/PeterYangs/superAdminCore/test/conf"
@@ -24,6 +25,11 @@ func main() {
 	//加载配置(这是第一步)
 	c.LoadConf(conf.Conf)
 
-	cache.Cache().Put("ppp", "pppp", 1*time.Minute)
+	err := cache.Cache().Put("ppp", "pppp", 1*time.Minute)
+
+	if err != nil {
+
+		fmt.Println(err)
+	}
 
 }

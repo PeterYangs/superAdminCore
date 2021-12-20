@@ -20,6 +20,7 @@ func Load(conf map[string]interface{}) {
 		"captcha_key":       "_captcha",                         //验证码的key
 		"captcha_lifetime":  os.Getenv("CAPTCHA_LIFETIME"),      //验证码过期时间
 		"lock_prefix":       os.Getenv("LOCK_PREFIX"),           //锁前缀
+		"cache_prefix":      "cache",
 	}
 
 	for s, i := range conf {

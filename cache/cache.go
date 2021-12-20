@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"github.com/PeterYangs/superAdminCore/cache/fileCache"
 	"github.com/PeterYangs/superAdminCore/cache/redisCache"
 	"os"
 	"time"
@@ -20,6 +21,10 @@ func Cache() CacheContract {
 	case "redis":
 
 		return redisCache.NewRedisCache()
+
+	case "file":
+
+		return fileCache.NewFileCache()
 
 	}
 
