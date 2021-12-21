@@ -2,9 +2,8 @@ package key
 
 import (
 	"fmt"
-	"github.com/PeterYangs/tools"
 	"github.com/PeterYangs/tools/file/read"
-	uuid "github.com/satori/go.uuid"
+	"github.com/PeterYangs/tools/secret"
 	"os"
 	"regexp"
 )
@@ -39,7 +38,9 @@ func (k Key) ArtisanRun() {
 		panic(err)
 	}
 
-	re1 := regexp.MustCompile("KEY=[0-9A-Za-z!@#$%^&*]+").ReplaceAllString(string(res), "KEY="+tools.Md5(uuid.NewV4().String()))
+	d := secret.NewDes()
+
+	re1 := regexp.MustCompile("KEY=[0-9A-Za-z!@#$%^&*]+").ReplaceAllString(string(res), "KEY="+string(d.GenerateKey()))
 
 	f, err := os.OpenFile(".env", os.O_RDWR, 0644)
 

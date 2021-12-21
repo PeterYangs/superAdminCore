@@ -6,7 +6,6 @@ import (
 	"github.com/PeterYangs/superAdminCore/core"
 	"github.com/PeterYangs/superAdminCore/test/conf"
 	"github.com/joho/godotenv"
-	"time"
 )
 
 func init() {
@@ -25,11 +24,13 @@ func main() {
 	//加载配置(这是第一步)
 	c.LoadConf(conf.Conf)
 
-	err := cache.Cache().Put("ppp", "pppp", 1*time.Minute)
+	err := cache.Cache().Put("ppp", "789789", 0)
 
 	if err != nil {
 
 		fmt.Println(err)
 	}
+
+	fmt.Println(cache.Cache().Get("ppp"))
 
 }

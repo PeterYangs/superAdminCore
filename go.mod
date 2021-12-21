@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/PeterYangs/gcmd2 v0.0.3
-	github.com/PeterYangs/tools v0.2.37
+	github.com/PeterYangs/tools v0.2.38
 	github.com/fogleman/gg v1.3.0
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.6.3
