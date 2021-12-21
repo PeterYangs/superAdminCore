@@ -3,6 +3,7 @@ package fileCache
 import (
 	"encoding/json"
 	"errors"
+	"github.com/PeterYangs/superAdminCore/conf"
 	"github.com/PeterYangs/tools"
 	"github.com/PeterYangs/tools/secret"
 	"io/ioutil"
@@ -40,9 +41,9 @@ func (f fileCache) Put(key string, value string, ttl time.Duration) error {
 	dirName := tools.SubStr(fileName_, 0, 2) + "/" + tools.SubStr(fileName_, 2, 2)
 
 	//生成文件夹
-	os.MkdirAll("storage/"+dirName, 0755)
+	os.MkdirAll(conf.Get("file_cache_path").(string)+"/"+dirName, 0755)
 
-	file, err := os.OpenFile("storage/"+dirName+"/"+fileName_, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(conf.Get("file_cache_path").(string)+"/"+dirName+"/"+fileName_, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 
 	if err != nil {
 
@@ -92,7 +93,7 @@ func (f fileCache) Get(key string) (string, error) {
 
 	dirName := tools.SubStr(fileName_, 0, 2) + "/" + tools.SubStr(fileName_, 2, 2)
 
-	file, err := os.Open("storage/" + dirName + "/" + fileName_)
+	file, err := os.Open(conf.Get("file_cache_path").(string) + "/" + dirName + "/" + fileName_)
 
 	if err != nil {
 
@@ -123,13 +124,13 @@ func (f fileCache) Get(key string) (string, error) {
 	if v.Expire != 0 && (now > int64(v.Expire)) {
 
 		//删除文件
-		defer func(f *os.File, filename string) {
+		defer func(f *os.File, ff string) {
 
 			f.Close()
 
-			os.Remove(filename)
+			os.Remove(ff)
 
-		}(file, "storage/"+string(fileName.ToBase64()))
+		}(file, conf.Get("file_cache_path").(string)+"/"+dirName+"/"+fileName_)
 
 		return "", errors.New("缓存已超时")
 	}
