@@ -36,6 +36,7 @@ const (
 	Text      Types = "text"
 	Timestamp Types = "timestamp"
 	Enum      Types = "enum"
+	Decimal   Types = "decimal"
 )
 
 func (t Types) ToString() string {
@@ -63,6 +64,7 @@ type field struct {
 	comment      string
 	unique       bool     //唯一索引
 	enumList     []string //枚举列表
+	places       int      //小数点位数
 }
 
 func getBatch() {
@@ -175,6 +177,16 @@ func (c *Migrate) String(column string, length int) *field {
 func (c *Migrate) Enum(column string, allowed []string) *field {
 
 	f := &field{column: column, types: Enum, tag: CREATE, enumList: allowed}
+
+	c.fields = append(c.fields, f)
+
+	return f
+
+}
+
+func (c *Migrate) Decimal(column string, total int, places int) *field {
+
+	f := &field{column: column, types: Decimal, tag: CREATE, length: total, places: places}
 
 	c.fields = append(c.fields, f)
 
@@ -476,6 +488,12 @@ func setColumnAttr(f *field) string {
 		}
 
 		str += " `" + f.column + "` " + "enum(" + tools.Join(`,`, enumTemp) + ")" + " "
+
+		break
+
+	case Decimal:
+
+		str += " `" + f.column + "` " + f.types.ToString() + "(" + cast.ToString(f.length) + "," + cast.ToString(f.places) + ") "
 
 		break
 
