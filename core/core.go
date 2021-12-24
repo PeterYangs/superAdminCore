@@ -62,8 +62,10 @@ func NewCore() *Core {
 	if err != nil {
 		panic("配置文件加载失败")
 	}
+	//服务退出上下文，主要作用是让其他子组件协程安全退出
+	cxt, cancel := context.WithCancel(context.Background())
 
-	return &Core{}
+	return &Core{Cxt: cxt, Cancel: cancel, Wait: &sync.WaitGroup{}}
 }
 
 // LoadRoute 加载路由
@@ -230,15 +232,15 @@ func (core *Core) loadService() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	//服务退出上下文，主要作用是让其他子组件协程安全退出
-	cxt, cancel := context.WithCancel(context.Background())
+	//cxt, cancel := context.WithCancel(context.Background())
+	//
+	//wait := sync.WaitGroup{}
 
-	wait := sync.WaitGroup{}
-
-	core.Cxt = cxt
-
-	core.Cancel = cancel
-
-	core.Wait = &wait
+	//core.Cxt = cxt
+	//
+	//core.Cancel = cancel
+	//
+	//core.Wait = &wait
 
 	core.Sigs = sigs
 
@@ -510,9 +512,9 @@ func (core *Core) serverStart() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	//服务退出上下文，主要作用是让其他子组件协程安全退出
-	cxt, cancel := context.WithCancel(context.Background())
+	//cxt, cancel := context.WithCancel(context.Background())
 
-	wait := sync.WaitGroup{}
+	//wait := sync.WaitGroup{}
 
 	httpOk := make(chan bool)
 
@@ -535,11 +537,11 @@ func (core *Core) serverStart() {
 
 	route.Load(core.Engine, core.Routes)
 
-	core.Cxt = cxt
-
-	core.Cancel = cancel
-
-	core.Wait = &wait
+	//core.Cxt = cxt
+	//
+	//core.Cancel = cancel
+	//
+	//core.Wait = &wait
 
 	core.HttpOk = httpOk
 

@@ -31,6 +31,26 @@ func main() {
 	//加载自定义服务
 	//c.LoadServices(demo.NewDemo())
 
+	//一个接收全局退出信号的例子
+	//go func() {
+	//
+	//	c.Wait.Add(1)
+	//
+	//	defer c.Wait.Done()
+	//
+	//	select {
+	//	case <-c.Cxt.Done():
+	//
+	//		time.Sleep(3 * time.Second)
+	//
+	//		fmt.Println("测试退出")
+	//
+	//		return
+	//
+	//	}
+	//
+	//}()
+
 	//启动
 	c.Start()
 
