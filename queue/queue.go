@@ -9,6 +9,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/queue/template"
 	"github.com/PeterYangs/superAdminCore/redis"
 	"github.com/PeterYangs/tools"
+	"github.com/PeterYangs/waitTree"
 	redis2 "github.com/go-redis/redis/v8"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cast"
@@ -34,7 +35,7 @@ func init() {
 
 }
 
-func Run(cxt context.Context, wait *sync.WaitGroup) {
+func Run(cxt context.Context, wait *waitTree.WaitTree) {
 
 	//context.Context()
 
@@ -162,7 +163,7 @@ func Run(cxt context.Context, wait *sync.WaitGroup) {
 
 }
 
-func checkDelay(cxt context.Context, wait *sync.WaitGroup) {
+func checkDelay(cxt context.Context, wait *waitTree.WaitTree) {
 
 	defer func() {
 		if r := recover(); r != nil {

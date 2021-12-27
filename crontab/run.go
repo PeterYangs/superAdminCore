@@ -1,11 +1,11 @@
 package crontab
 
 import (
-	"sync"
+	"github.com/PeterYangs/waitTree"
 	"time"
 )
 
-func Run(wait *sync.WaitGroup, Registered func(*Crontab)) {
+func Run(wait *waitTree.WaitTree, Registered func(*Crontab)) {
 
 	_crontab := &Crontab{
 		quitWait: wait,

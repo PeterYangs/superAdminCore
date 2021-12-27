@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"sync"
+	"github.com/PeterYangs/waitTree"
 )
 
 type Service interface {
-	Load(cxt context.Context, wait *sync.WaitGroup)
+	Load(cxt context.Context, wait *waitTree.WaitTree)
 }

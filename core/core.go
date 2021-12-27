@@ -21,6 +21,7 @@ import (
 	"github.com/PeterYangs/tools"
 	"github.com/PeterYangs/tools/file/read"
 	"github.com/PeterYangs/tools/http"
+	"github.com/PeterYangs/waitTree"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -32,7 +33,6 @@ import (
 	"os/signal"
 	"runtime"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 )
@@ -41,7 +41,7 @@ type Core struct {
 	Engine      *gin.Engine
 	Cxt         context.Context
 	Cancel      context.CancelFunc
-	Wait        *sync.WaitGroup
+	Wait        *waitTree.WaitTree
 	HttpOk      chan bool
 	httpFail    chan bool
 	Sigs        chan os.Signal
@@ -65,7 +65,7 @@ func NewCore() *Core {
 	//服务退出上下文，主要作用是让其他子组件协程安全退出
 	cxt, cancel := context.WithCancel(context.Background())
 
-	return &Core{Cxt: cxt, Cancel: cancel, Wait: &sync.WaitGroup{}}
+	return &Core{Cxt: cxt, Cancel: cancel, Wait: waitTree.NewWaitTree(waitTree.Background())}
 }
 
 // LoadRoute 加载路由

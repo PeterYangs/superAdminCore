@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/PeterYangs/tools"
+	"github.com/PeterYangs/waitTree"
 	"github.com/spf13/cast"
 	"os"
 	"runtime"
@@ -140,7 +141,7 @@ func (r *result) Stdout() {
 	fmt.Println(r.message)
 }
 
-func (ls *logsService) Task(cxt context.Context, wait *sync.WaitGroup) {
+func (ls *logsService) Task(cxt context.Context, wait *waitTree.WaitTree) {
 
 	defer wait.Done()
 

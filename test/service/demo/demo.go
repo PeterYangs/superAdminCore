@@ -3,7 +3,7 @@ package demo
 import (
 	"context"
 	"fmt"
-	"sync"
+	"github.com/PeterYangs/waitTree"
 	"time"
 )
 
@@ -15,7 +15,7 @@ func NewDemo() *Demo {
 	return &Demo{}
 }
 
-func (d *Demo) Load(cxt context.Context, wait *sync.WaitGroup) {
+func (d *Demo) Load(cxt context.Context, wait *waitTree.WaitTree) {
 
 	fmt.Println("加载自定义服务")
 

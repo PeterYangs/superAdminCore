@@ -3,12 +3,12 @@ package crontab
 import (
 	"fmt"
 	"github.com/PeterYangs/superAdminCore/component/logs"
-	"sync"
+	"github.com/PeterYangs/waitTree"
 )
 
 type Crontab struct {
 	schedules []*schedule
-	quitWait  *sync.WaitGroup
+	quitWait  *waitTree.WaitTree
 }
 
 type schedule struct {
