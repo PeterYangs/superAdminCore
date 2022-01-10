@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/PeterYangs/gcmd2 v0.0.3
 	github.com/PeterYangs/tools v0.2.38
-	github.com/PeterYangs/waitTree v0.0.2 // indirect
+	github.com/PeterYangs/waitTree v0.0.6
 	github.com/fogleman/gg v1.3.0
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.6.3
