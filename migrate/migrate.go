@@ -22,9 +22,10 @@ const Null NullValue = 0x00000
 type Tag int
 
 const (
-	CREATE Tag = 0x00000
-	UPDATE Tag = 0x00001
-	DELETE Tag = 0x00002
+	CREATE    Tag = 0x00000
+	UPDATE    Tag = 0x00001
+	DELETE    Tag = 0x00002
+	DropIndex Tag = 0x00003
 )
 
 type Types string
@@ -221,6 +222,14 @@ func (c *Migrate) DropColumn(column string) {
 
 }
 
+func (c *Migrate) DropIndex(indexName string) {
+
+	f := &field{column: indexName, tag: DropIndex}
+
+	c.fields = append(c.fields, f)
+
+}
+
 func (f *field) Default(value interface{}) *field {
 
 	f.defaultValue = value
@@ -291,8 +300,10 @@ func run(m *Migrate) {
 
 		sql := "CREATE TABLE `" + m.Table + "` (" +
 			"`" + getPrimaryKey(m) + "` int(10) unsigned NOT NULL AUTO_INCREMENT," +
+			//索引，包括联合索引
 			setTableUnique(m) +
 			getColumn(m) +
+			//单个字段唯一索引
 			setColumnUnique(m) +
 			"PRIMARY KEY (`" + getPrimaryKey(m) + "`)" +
 			") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
@@ -317,7 +328,7 @@ func run(m *Migrate) {
 
 	if m.Tag == UPDATE {
 
-		sql := "alter table `" + m.Table + "` "
+		sql := "ALTER TABLE `" + m.Table + "` "
 
 		for i, f := range m.fields {
 
@@ -325,16 +336,19 @@ func run(m *Migrate) {
 
 			case CREATE:
 
-				sql += " add column  " + setColumnAttr(f)
+				sql += " ADD COLUMN  " + setColumnAttr(f)
 
 			case UPDATE:
 
-				sql += " modify " + setColumnAttr(f)
+				sql += " MODIFY " + setColumnAttr(f)
 
 			case DELETE:
 
-				sql += " drop COLUMN `" + f.column + "` "
+				sql += " DROP COLUMN `" + f.column + "` "
 
+			case DropIndex:
+
+				sql += " DROP INDEX `" + f.column + "` "
 			}
 
 			if i+1 < len(m.fields) {
@@ -352,7 +366,7 @@ func run(m *Migrate) {
 				sql += ","
 			}
 
-			sql += " add unique  `" + tools.Join("+", strings) + "` (`" + tools.Join("`,`", strings) + "`)" + " USING BTREE"
+			sql += " ADD UNIQUE  `" + tools.Join("+", strings) + "` (`" + tools.Join("`,`", strings) + "`)" + " USING BTREE"
 
 			if i+1 < len(m.unique) {
 
