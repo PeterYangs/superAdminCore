@@ -50,7 +50,8 @@ type Migrate struct {
 	Table  string
 	fields []*field
 	Name   string
-	unique [][]string //[ [name,title]  ]
+	unique [][]string //[ [name,title] [sex] ]
+	index  [][]string //[ [name,title] [sex] ]
 }
 
 type field struct {
@@ -64,6 +65,7 @@ type field struct {
 	defaultValue interface{}
 	comment      string
 	unique       bool     //唯一索引
+	index        bool     //普通索引
 	enumList     []string //枚举列表
 	places       int      //小数点位数
 }
@@ -142,6 +144,12 @@ func (c *Migrate) Unique(column ...string) {
 
 	c.unique = append(c.unique, column)
 
+}
+
+// Index 设置普通索引
+func (c *Migrate) Index(column ...string) {
+
+	c.index = append(c.index, column)
 }
 
 // Integer int
@@ -268,6 +276,13 @@ func (f *field) Unique() *field {
 	return f
 }
 
+func (f *field) Index() *field {
+
+	f.index = true
+
+	return f
+}
+
 func (f *field) Nullable() *field {
 
 	f.isNullable = true
@@ -303,8 +318,8 @@ func run(m *Migrate) {
 			//索引，包括联合索引
 			setTableUnique(m) +
 			getColumn(m) +
-			//单个字段唯一索引
-			setColumnUnique(m) +
+			//单个字段索引
+			setColumnIndex(m) +
 			"PRIMARY KEY (`" + getPrimaryKey(m) + "`)" +
 			") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 
@@ -351,6 +366,7 @@ func run(m *Migrate) {
 				sql += " DROP INDEX `" + f.column + "` "
 			}
 
+			//不是最后一个加逗号
 			if i+1 < len(m.fields) {
 
 				sql += ","
@@ -358,17 +374,45 @@ func run(m *Migrate) {
 
 		}
 
-		//索引添加
-		for i, strings := range m.unique {
+		if len(m.unique) > 0 {
 
-			if len(m.fields) > 0 {
+			sql += ","
+		}
+
+		//唯一索引添加
+		for i, ss := range m.unique {
+
+			//if len(m.fields) > 0 {
+			//
+			//}
+
+			sql += " ADD UNIQUE  `" + tools.Join("+", ss) + "` (`" + tools.Join("`,`", ss) + "`)" + " USING BTREE"
+
+			//不是最后一个加逗号
+			if i+1 < len(m.unique) {
 
 				sql += ","
 			}
 
-			sql += " ADD UNIQUE  `" + tools.Join("+", strings) + "` (`" + tools.Join("`,`", strings) + "`)" + " USING BTREE"
+		}
 
-			if i+1 < len(m.unique) {
+		if len(m.index) > 0 {
+
+			sql += ","
+		}
+
+		//普通索引添加
+		for i, ss := range m.index {
+
+			//if len(m.fields) > 0 {
+			//
+			//	sql += ","
+			//}
+
+			sql += " ADD INDEX  `" + tools.Join("+", ss) + "` (`" + tools.Join("`,`", ss) + "`) "
+
+			//不是最后一个加逗号
+			if i+1 < len(m.index) {
 
 				sql += ","
 			}
@@ -441,8 +485,8 @@ func getColumn(m *Migrate) string {
 	return str
 }
 
-//设置字段唯一索引
-func setColumnUnique(m *Migrate) string {
+//设置字段索引
+func setColumnIndex(m *Migrate) string {
 
 	str := ""
 
@@ -452,6 +496,9 @@ func setColumnUnique(m *Migrate) string {
 
 			str += " UNIQUE KEY `" + f.column + "` (`" + f.column + "`), "
 
+		} else if f.index {
+
+			str += "  KEY `" + f.column + "` (`" + f.column + "`), "
 		}
 
 	}
