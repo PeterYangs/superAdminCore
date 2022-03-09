@@ -151,7 +151,7 @@ func (ls *logsService) Task(cxt context.Context, wait *waitTree.WaitTree) {
 
 		case <-cxt.Done():
 
-			close(ls.queue)
+			//close(ls.queue)
 
 		}
 
