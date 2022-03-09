@@ -14,6 +14,7 @@ import (
 func Routes(r route.Group) {
 
 	r.Registered(route.GET, "/ping", controller.Ping).Bind()
+	r.Registered(route.GET, "/test", controller.Test).Bind()
 
 	r.Registered(route.GET, "/task", func(c *contextPlus.Context) *response.Response {
 

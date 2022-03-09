@@ -143,34 +143,33 @@ func (r *result) Stdout() {
 
 func (ls *logsService) Task(cxt context.Context, wait *waitTree.WaitTree) {
 
-	defer wait.Done()
+	defer func() {
 
-	go func() {
+		wait.Done()
+
+		fmt.Println("日志模块安全退出")
+	}()
+
+	for {
 
 		select {
 
 		case <-cxt.Done():
 
-			//close(ls.queue)
+			return
+		case message := <-ls.queue:
+
+			if ls.logLevels[message.level].fileDir == "" {
+
+				continue
+			}
+
+			message.checkFileName(ls.logLevels[message.level])
+
+			ls.logLevels[message.level].file.Write([]byte(message.message))
 
 		}
-
-	}()
-
-	for message := range ls.queue {
-
-		if ls.logLevels[message.level].fileDir == "" {
-
-			continue
-		}
-
-		message.checkFileName(ls.logLevels[message.level])
-
-		ls.logLevels[message.level].file.Write([]byte(message.message))
-
 	}
-
-	fmt.Println("日志模块安全退出")
 
 }
 
