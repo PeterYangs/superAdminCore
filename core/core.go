@@ -602,7 +602,7 @@ func (core *Core) http() {
 		port = "8887"
 	}
 
-	srv.Addr = ":" + port
+	srv.Addr = "127.0.0.1:" + port
 
 	srv.Handler = core.Engine
 
