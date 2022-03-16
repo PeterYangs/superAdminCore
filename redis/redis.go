@@ -96,14 +96,15 @@ func (cc *_connect) Get(cxt context.Context, key string) *redis.StringCmd {
 	return cc.connect.Get(cxt, conf.Get("redis_prefix").(string)+key)
 }
 
+// Set expiration为0则为不过期
 func (cc *_connect) Set(cxt context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
 
 	return cc.connect.Set(cxt, conf.Get("redis_prefix").(string)+key, value, expiration)
 }
 
+// Exists key是否存在，返回0则一个都不存在，返回2这则有两个
 func (cc *_connect) Exists(cxt context.Context, keys ...string) *redis.IntCmd {
 
-	//cc.connect.Expire()
 	temp := make([]string, len(keys))
 
 	for i, key := range keys {

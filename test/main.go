@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/PeterYangs/superAdminCore/contextPlus"
 	"github.com/PeterYangs/superAdminCore/core"
+	"github.com/PeterYangs/superAdminCore/middleware/session"
 	"github.com/PeterYangs/superAdminCore/test/artisan"
 	"github.com/PeterYangs/superAdminCore/test/conf"
 	"github.com/PeterYangs/superAdminCore/test/crontab"
@@ -27,6 +29,13 @@ func main() {
 
 	//加载自定义命令
 	c.LoadArtisan(artisan.Artisan)
+
+	c.LoadMiddleware(func() []contextPlus.HandlerFunc {
+
+		return []contextPlus.HandlerFunc{
+			session.StartSession,
+		}
+	})
 
 	//加载自定义服务
 	//c.LoadServices(demo.NewDemo())

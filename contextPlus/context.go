@@ -329,6 +329,11 @@ func (s *Session) Exist(key string) bool {
 
 }
 
+func (s *Session) Key() string {
+
+	return GetRedisSessionKey(s.Cookie)
+}
+
 func GetRedisSessionKey(cookie string) string {
 
 	return strings.Replace(conf.Get("redis_session_key").(string), "{cookie}", cookie, 1)
