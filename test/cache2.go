@@ -5,17 +5,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/cache"
 	"github.com/PeterYangs/superAdminCore/core"
 	"github.com/PeterYangs/superAdminCore/test/conf"
-	"github.com/joho/godotenv"
 )
-
-func init() {
-
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		panic("配置文件加载失败")
-	}
-}
 
 func main() {
 
