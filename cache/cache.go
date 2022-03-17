@@ -10,6 +10,7 @@ import (
 type CacheContract interface {
 	Put(key string, value string, ttl time.Duration) error
 	Get(key string) (string, error)
+	Exists(key string) bool
 }
 
 func Cache() CacheContract {

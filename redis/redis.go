@@ -221,6 +221,11 @@ func (cc *_connect) ZRemRangeByRank(cxt context.Context, key string, start, stop
 	return cc.connect.ZRemRangeByRank(cxt, conf.Get("redis_prefix").(string)+key, start, stop)
 }
 
+func (cc *_connect) HMSet(cxt context.Context, key string, values ...interface{}) *redis.BoolCmd {
+
+	return cc.connect.HMSet(cxt, conf.Get("redis_prefix").(string)+key, values...)
+}
+
 func (cc *_connect) Eval(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd {
 
 	return cc.connect.Eval(ctx, script, keys, args...)
