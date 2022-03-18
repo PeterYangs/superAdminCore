@@ -1,6 +1,7 @@
 package email
 
 import (
+	"errors"
 	"fmt"
 	"github.com/PeterYangs/superAdminCore/queue/task"
 )
@@ -33,9 +34,11 @@ func NewEmailTask(title string, email string, content string) *EmailTask {
 	}
 }
 
-func (t *EmailTask) Run() {
+func (t *EmailTask) Run() error {
 
 	fmt.Println(t.Parameters.Title, "--", t.Parameters.Email, "--", t.Parameters.Content)
+
+	return errors.New("错误测试")
 }
 
 func (t *EmailTask) BindParameters(p map[string]interface{}) {

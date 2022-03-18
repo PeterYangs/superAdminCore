@@ -1,7 +1,7 @@
 package template
 
 type Task interface {
-	Run()
+	Run() error
 	BindParameters(map[string]interface{})
 	GetName() string
 }

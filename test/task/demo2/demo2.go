@@ -30,9 +30,11 @@ func NewDemo2Task(id float64, name string) *Demo2Task {
 	}
 }
 
-func (t *Demo2Task) Run() {
+func (t *Demo2Task) Run() error {
 
 	fmt.Println(t.Parameters.Id, "------------", t.Parameters.Name)
+
+	return nil
 
 }
 

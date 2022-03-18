@@ -11,6 +11,7 @@ import (
 	"github.com/PeterYangs/tools"
 	"github.com/PeterYangs/waitTree"
 	redis2 "github.com/go-redis/redis/v8"
+	"github.com/mitchellh/mapstructure"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cast"
 	"os"
@@ -20,11 +21,12 @@ import (
 )
 
 type job struct {
-	Delay_ time.Duration `json:"-"` //延迟
-	Data_  template.Task `json:"data"`
-	Queue_ string        `json:"queue"` //队列名称
-	Id     string        `json:"id"`
-	Time   string        `json:"time"`
+	Delay_  time.Duration `json:"-"` //延迟
+	Data    template.Task `json:"data"`
+	Queue_  string        `json:"queue"` //队列名称
+	Id      string        `json:"id"`
+	Time    string        `json:"time"`
+	TryTime int           `json:"tryTime"` //重试次数
 }
 
 var once sync.Once
@@ -36,8 +38,6 @@ func init() {
 }
 
 func Run(cxt context.Context, wait *waitTree.WaitTree) {
-
-	//context.Context()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -107,8 +107,6 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 		//timeout为0则为永久超时
 		s, err := redis.GetClient().BLPop(queueContext, 0, queues...).Result()
 
-		//fmt.Println(s)
-
 		if err != nil {
 
 			if err.Error() != "context canceled" {
@@ -116,6 +114,7 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 				fmt.Println(err)
 			}
 
+			//每错误一次就加大睡眠时间
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 
 			if sleepTime < maxSleepTime {
@@ -126,25 +125,45 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 			continue
 		}
 
+		type q struct {
+			Data    interface{} `json:"data"`
+			Queue   string      `json:"queue"`
+			Id      string      `json:"id"`
+			Time    string      `json:"time"`
+			TryTime int         `json:"tryTime"`
+		}
+
+		var qs q
+
 		sleepTime = 0
 
-		var jsons map[string]interface{}
-
-		err = json.Unmarshal([]byte(s[1]), &jsons)
+		err = json.Unmarshal([]byte(s[1]), &qs)
 
 		if err != nil {
 
-			fmt.Println(err)
+			logs.NewLogs().Error(err.Error()).Stdout()
 
 			continue
 		}
 
-		data := jsons["data"].(map[string]interface{})
+		type d struct {
+			TaskName   string      `json:"TaskName"`
+			Parameters interface{} `json:"Parameters"`
+		}
+
+		var ds d
+
+		err = mapstructure.Decode(qs.Data, &ds)
+
+		if err != nil {
+
+			logs.NewLogs().Error(err.Error()).Stdout()
+
+			continue
+		}
 
 		//获取task
-		hh, ok := register.Handles.GetTask(data["TaskName"].(string))
-
-		//h := hh.(Task)
+		hh, ok := register.Handles.GetTask(ds.TaskName)
 
 		if !ok {
 
@@ -154,10 +173,36 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 		}
 
 		//绑定参数
-		hh.BindParameters(data["Parameters"].(map[string]interface{}))
+		hh.BindParameters(cast.ToStringMap(ds.Parameters))
 
 		//执行任务
-		hh.Run()
+		runErr := hh.Run()
+
+		if runErr != nil {
+
+			logs.NewLogs().Error(runErr.Error()).Stdout()
+
+			if qs.TryTime <= 0 {
+
+				continue
+			}
+
+			//失败重试
+			qs.TryTime--
+
+			reTry, jsonErr := json.Marshal(qs)
+
+			if jsonErr != nil {
+
+				logs.NewLogs().Error(jsonErr.Error()).Stdout()
+
+				continue
+			}
+
+			//头部插入，先执行
+			redis.GetClient().LPush(context.TODO(), os.Getenv("QUEUE_PREFIX")+os.Getenv("DEFAULT_QUEUE"), reTry).Result()
+
+		}
 
 	}
 
@@ -265,7 +310,7 @@ func push() {
 func Dispatch(task template.Task) *job {
 
 	return &job{
-		Data_:  task,
+		Data:   task,
 		Delay_: 0,
 		Id:     uuid.NewV4().String(),
 	}
@@ -282,6 +327,15 @@ func (j *job) Delay(duration time.Duration) *job {
 	}
 
 	return j
+}
+
+// SetTryTime 错误重试次数
+func (j *job) SetTryTime(time int) *job {
+
+	j.TryTime = time
+
+	return j
+
 }
 
 func (j *job) Queue(queue string) *job {
