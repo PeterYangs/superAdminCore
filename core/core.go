@@ -38,19 +38,20 @@ import (
 )
 
 type Core struct {
-	Engine      *gin.Engine
-	Cxt         context.Context
-	Cancel      context.CancelFunc
-	Wait        *waitTree.WaitTree
-	HttpOk      chan bool
-	httpFail    chan bool
-	Sigs        chan os.Signal
-	Srv         *http_.Server
-	Crontab     func(*crontab.Crontab)
-	Routes      func(route.Group)
-	Artisan     func() []artisan.Artisan
-	serviceList []service.Service //启动时加载的服务
-	debug       bool              //是否打开性能调试
+	Engine         *gin.Engine
+	Cxt            context.Context
+	Cancel         context.CancelFunc
+	Wait           *waitTree.WaitTree
+	HttpOk         chan bool
+	httpFailCxt    context.Context
+	httpFailCancel context.CancelFunc
+	Sigs           chan os.Signal
+	Srv            *http_.Server
+	Crontab        func(*crontab.Crontab)
+	Routes         func(route.Group)
+	Artisan        func() []artisan.Artisan
+	serviceList    []service.Service //启动时加载的服务
+	debug          bool              //是否打开性能调试
 }
 
 var isRun = false
@@ -64,8 +65,9 @@ func NewCore() *Core {
 	}
 	//服务退出上下文，主要作用是让其他子组件协程安全退出
 	cxt, cancel := context.WithCancel(context.Background())
+	httpFailCxt, httpFailCancel := context.WithCancel(context.Background())
 
-	return &Core{Cxt: cxt, Cancel: cancel, Wait: waitTree.NewWaitTree(waitTree.Background())}
+	return &Core{Cxt: cxt, Cancel: cancel, Wait: waitTree.NewWaitTree(waitTree.Background()), httpFailCxt: httpFailCxt, httpFailCancel: httpFailCancel}
 }
 
 // LoadRoute 加载路由
@@ -500,6 +502,7 @@ func (core *Core) stop() error {
 	return nil
 }
 
+//框架主进程
 func (core *Core) serverStart() {
 
 	//服务id生成
@@ -518,7 +521,7 @@ func (core *Core) serverStart() {
 
 	httpOk := make(chan bool)
 
-	httpFail := make(chan bool)
+	//httpFail := make(chan bool)
 
 	if os.Getenv("APP_DEBUG") == "true" {
 
@@ -537,15 +540,9 @@ func (core *Core) serverStart() {
 
 	route.Load(core.Engine, core.Routes)
 
-	//core.Cxt = cxt
-	//
-	//core.Cancel = cancel
-	//
-	//core.Wait = &wait
-
 	core.HttpOk = httpOk
 
-	core.httpFail = httpFail
+	//core.httpFail = httpFail
 
 	core.Sigs = sigs
 
@@ -612,7 +609,9 @@ func (core *Core) http() {
 
 		//http服务启动失败
 		//httpFail <- true
-		core.httpFail <- true
+		//core.httpFail.
+
+		core.httpFailCancel()
 
 	}
 
@@ -686,7 +685,7 @@ func (core *Core) boot() {
 		select {
 
 		//如http服务启动失败，其他子服务无需启动
-		case <-core.httpFail:
+		case <-core.httpFailCxt.Done():
 
 			fmt.Println("http启动失败")
 
