@@ -345,7 +345,15 @@ func run(m *Migrate) {
 
 		sql := "ALTER TABLE `" + m.Table + "` "
 
-		for i, f := range m.fields {
+		//是否需要加逗号
+		isCom := false
+
+		for _, f := range m.fields {
+
+			if isCom {
+
+				sql += ","
+			}
 
 			switch f.tag {
 
@@ -364,59 +372,41 @@ func run(m *Migrate) {
 			case DropIndex:
 
 				sql += " DROP INDEX `" + f.column + "` "
+
+			default:
+
+				continue
 			}
 
-			//不是最后一个加逗号
-			if i+1 < len(m.fields) {
+			isCom = true
 
-				sql += ","
-			}
-
-		}
-
-		if len(m.unique) > 0 {
-
-			sql += ","
 		}
 
 		//唯一索引添加
-		for i, ss := range m.unique {
+		for _, ss := range m.unique {
 
-			//if len(m.fields) > 0 {
-			//
-			//}
+			if isCom {
+
+				sql += ","
+			}
 
 			sql += " ADD UNIQUE  `" + tools.Join("+", ss) + "` (`" + tools.Join("`,`", ss) + "`)" + " USING BTREE"
 
-			//不是最后一个加逗号
-			if i+1 < len(m.unique) {
+			isCom = true
 
-				sql += ","
-			}
-
-		}
-
-		if len(m.index) > 0 {
-
-			sql += ","
 		}
 
 		//普通索引添加
-		for i, ss := range m.index {
+		for _, ss := range m.index {
 
-			//if len(m.fields) > 0 {
-			//
-			//	sql += ","
-			//}
-
-			sql += " ADD INDEX  `" + tools.Join("+", ss) + "` (`" + tools.Join("`,`", ss) + "`) "
-
-			//不是最后一个加逗号
-			if i+1 < len(m.index) {
+			if isCom {
 
 				sql += ","
 			}
 
+			sql += " ADD INDEX  `" + tools.Join("+", ss) + "` (`" + tools.Join("`,`", ss) + "`) "
+
+			isCom = true
 		}
 
 		t := database.GetDb().Exec(sql)
