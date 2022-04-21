@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"runtime/debug"
 )
 
 type QueueRun struct {
@@ -37,7 +38,7 @@ func (q QueueRun) ArtisanRun() {
 
 		if name == result {
 
-			log.Println("该任务名已存在")
+			log.Println("该任务名已存在", string(debug.Stack()))
 
 			return
 		}
@@ -125,7 +126,7 @@ func (t *` + capitalize(result) + `Task) BindParameters(p map[string]interface{}
 
 	if err != nil {
 
-		log.Println(err)
+		log.Println(err, string(debug.Stack()))
 
 		return
 	}
@@ -136,7 +137,7 @@ func (t *` + capitalize(result) + `Task) BindParameters(p map[string]interface{}
 
 	if err != nil {
 
-		log.Println(err)
+		log.Println(err, string(debug.Stack()))
 
 		return
 	}

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/PeterYangs/superAdminCore/component/logs"
 	"github.com/PeterYangs/superAdminCore/contextPlus"
 	"github.com/PeterYangs/superAdminCore/queue"
 	"github.com/PeterYangs/superAdminCore/response"
@@ -15,7 +14,13 @@ func Ping(c *contextPlus.Context) *response.Response {
 
 func Test(c *contextPlus.Context) *response.Response {
 
-	logs.NewLogs().Error("123").Stdout()
+	//logs.NewLogs().Error("123").Stdout()
+
+	go func() {
+
+		panic("gg")
+
+	}()
 
 	return response.Resp().Api(1, "success", "")
 }

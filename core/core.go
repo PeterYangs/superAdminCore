@@ -26,12 +26,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cast"
+	"io"
 	"log"
 	http_ "net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -151,7 +153,7 @@ func (core *Core) Start() {
 		//后台运行模式
 		if daemon {
 
-			args[1] = "block"
+			args[1] = "daemon"
 			core.daemonize(args...)
 			return
 		}
@@ -159,13 +161,57 @@ func (core *Core) Start() {
 		args[1] = "block"
 		core.block(args...)
 
+	//守护进程
+	case "daemon":
+
+		sigs := make(chan os.Signal, 1)
+
+		//退出信号
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+		//记录守护进程pid
+		f, err := os.OpenFile("logs/daemon.pid", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0664)
+
+		if err != nil {
+
+			panic(err)
+		}
+
+		defer func() {
+
+			_ = os.Remove("logs/daemon.pid")
+
+		}()
+
+		_, err = f.Write([]byte(cast.ToString(os.Getpid())))
+
+		_ = f.Close()
+
+		for {
+
+			select {
+
+			case <-sigs:
+
+				return
+
+			default:
+
+				args[1] = "block"
+
+				core.normal(args...)
+
+			}
+
+		}
+
 	case "stop":
 
 		err := core.stop()
 
 		if err != nil {
 
-			log.Println(err)
+			log.Println(err, string(debug.Stack()))
 
 		}
 
@@ -175,7 +221,7 @@ func (core *Core) Start() {
 
 		if err != nil {
 
-			log.Println(err)
+			log.Println(err, string(debug.Stack()))
 
 			return
 
@@ -265,13 +311,13 @@ func (core *Core) daemonize(args ...string) {
 
 	if sysType == `windows` {
 
-		cmd := gcmd2.NewCommand(tools.Join(" ", args)+" > logs/outLog.log", context.TODO())
+		cmd := gcmd2.NewCommand(tools.Join(" ", args)+" ", context.TODO())
 
 		err := cmd.StartNoWait()
 
 		if err != nil {
 
-			log.Println(err)
+			log.Println(err, string(debug.Stack()))
 		}
 
 		return
@@ -283,27 +329,29 @@ func (core *Core) daemonize(args ...string) {
 
 		if runUser == "" || runUser == "nobody" {
 
-			cmd := gcmd2.NewCommand(tools.Join(" ", args)+" > logs/outLog.log 2>&1", context.TODO())
+			cmd := gcmd2.NewCommand(tools.Join(" ", args)+" ", context.TODO())
 
 			err := cmd.StartNoWait()
 
 			if err != nil {
 
-				log.Println(err)
+				log.Println(err, string(debug.Stack()))
 			}
 
 			return
 
 		}
 
+		//panic("sudo -u " + runUser + " " + tools.Join(" ", args))
+
 		//以其他用户运行服务，源命令(sudo -u nginx ./main start)
-		cmd := gcmd2.NewCommand("sudo -u "+runUser+" "+tools.Join(" ", args)+" > logs/outLog.log 2>&1", context.TODO())
+		cmd := gcmd2.NewCommand("sudo -u "+runUser+" "+tools.Join(" ", args)+" ", context.TODO())
 
 		err := cmd.StartNoWait()
 
 		if err != nil {
 
-			log.Println(err)
+			log.Println(err, string(debug.Stack()))
 		}
 
 		return
@@ -318,6 +366,7 @@ func (core *Core) block(args ...string) {
 
 	sysType := runtime.GOOS
 
+	//这里的退出信号是为了防止进程退出，没有其他意义
 	sigs := make(chan os.Signal, 1)
 
 	//退出信号
@@ -338,11 +387,13 @@ func (core *Core) block(args ...string) {
 		//以其他用户运行服务，源命令(sudo -u nginx ./main start)
 		cmd := gcmd2.NewCommand("sudo -u "+runUser+" "+tools.Join(" ", args), context.TODO())
 
-		err := cmd.Start()
+		core.dealOut(cmd)
+
+		err := cmd.StartNotOut()
 
 		if err != nil {
 
-			log.Println(err)
+			log.Println(err, string(debug.Stack()))
 
 			return
 
@@ -364,18 +415,177 @@ func (core *Core) normal(args ...string) {
 
 	cmd := gcmd2.NewCommand(tools.Join(" ", args), context.TODO())
 
-	err := cmd.Start()
+	core.dealOut(cmd)
+
+	err := cmd.StartNotOut()
 
 	if err != nil {
 
-		log.Println(err)
+		log.Println(err, string(debug.Stack()))
 	}
 
+}
+
+func (core *Core) dealOut(g *gcmd2.Gcmd2) {
+
+	outIo, err := g.GetOutPipe()
+
+	if err != nil {
+
+		return
+	}
+
+	errIo, err := g.GetErrPipe()
+
+	if err != nil {
+
+		return
+	}
+
+	go core.out(outIo)
+	go core.err(errIo)
+
+}
+
+func (core *Core) out(st io.ReadCloser) {
+
+	defer st.Close()
+
+	buf := make([]byte, 1024)
+
+	f, fErr := os.OpenFile("logs/outLog.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
+
+	if fErr != nil {
+
+		log.Println(fErr, string(debug.Stack()))
+
+		return
+	}
+
+	defer f.Close()
+
+	for {
+
+		n, readErr := st.Read(buf)
+
+		if readErr != nil {
+
+			if readErr == io.EOF {
+
+				return
+			}
+
+			//log.Println(readErr, string(debug.Stack()))
+
+			return
+		}
+
+		fmt.Print(string(buf[:n]))
+
+		f.Write(buf[:n])
+
+	}
+
+}
+
+func (core *Core) err(st io.ReadCloser) {
+
+	defer st.Close()
+
+	buf := make([]byte, 1024)
+
+	f, fErr := os.OpenFile("logs/outErr.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
+
+	if fErr != nil {
+
+		log.Println(fErr, string(debug.Stack()))
+
+		return
+	}
+
+	defer f.Close()
+
+	for {
+
+		n, readErr := st.Read(buf)
+
+		if readErr != nil {
+
+			if readErr == io.EOF {
+
+				return
+			}
+
+			//log.Println(readErr, string(debug.Stack()))
+
+			return
+		}
+
+		fmt.Print(string(buf[:n]))
+
+		f.Write(buf[:n])
+
+	}
 }
 
 func (core *Core) stop() error {
 
 	fmt.Println("stopping!!")
+
+	sysType := runtime.GOOS
+
+	d, _ := PathExists("logs/daemon.pid")
+
+	var dCmd *exec.Cmd
+
+	var dErr error
+
+	if d {
+
+		dPid, err := read.Open("logs/daemon.pid").Read()
+
+		if err != nil {
+
+			goto Stop
+
+		}
+
+		if sysType == `windows` {
+
+			if core.createWindowsKill() {
+
+				dCmd = exec.Command("cmd", "/c", ".\\logs\\kill.exe -SIGINT "+string(dPid))
+			} else {
+
+				dCmd = exec.Command("cmd", "/c", "taskkill /f /pid "+string(dPid))
+			}
+
+		}
+
+		if sysType == `linux` {
+
+			dCmd = exec.Command("bash", "-c", "kill "+string(dPid))
+		}
+
+		dErr = dCmd.Start()
+
+		if dErr != nil {
+
+			goto Stop
+
+		}
+
+		dErr = dCmd.Wait()
+
+		if dErr != nil {
+
+			goto Stop
+
+		}
+
+	}
+
+Stop:
 
 	b, err := PathExists("logs/run.pid")
 
@@ -398,8 +608,6 @@ func (core *Core) stop() error {
 			return err
 
 		}
-
-		sysType := runtime.GOOS
 
 		var cmd *exec.Cmd
 
@@ -505,6 +713,14 @@ func (core *Core) stop() error {
 //框架主进程
 func (core *Core) serverStart() {
 
+	//go func() {
+	//
+	//	time.Sleep(20 * time.Second)
+	//
+	//	panic("异常测试")
+	//
+	//}()
+
 	//服务id生成
 	kernel.IdInit()
 
@@ -514,14 +730,7 @@ func (core *Core) serverStart() {
 	//退出信号
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	//服务退出上下文，主要作用是让其他子组件协程安全退出
-	//cxt, cancel := context.WithCancel(context.Background())
-
-	//wait := sync.WaitGroup{}
-
 	httpOk := make(chan bool)
-
-	//httpFail := make(chan bool)
 
 	if os.Getenv("APP_DEBUG") == "true" {
 
@@ -541,8 +750,6 @@ func (core *Core) serverStart() {
 	route.Load(core.Engine, core.Routes)
 
 	core.HttpOk = httpOk
-
-	//core.httpFail = httpFail
 
 	core.Sigs = sigs
 
@@ -572,7 +779,6 @@ func (core *Core) serverStart() {
 func (core *Core) logInit() {
 
 	//日志退出标记
-	//wait.Add(1)
 	core.Wait.Add(1)
 
 	l := logs.CreateLogs()
@@ -605,11 +811,7 @@ func (core *Core) http() {
 
 	if err := srv.ListenAndServe(); err != nil && err != http_.ErrServerClosed {
 
-		log.Println(err)
-
-		//http服务启动失败
-		//httpFail <- true
-		//core.httpFail.
+		log.Println(err, string(debug.Stack()))
 
 		core.httpFailCancel()
 
@@ -642,13 +844,12 @@ func (core *Core) quitCheck() {
 
 		if err != nil {
 
-			log.Println(err)
+			log.Println(err, string(debug.Stack()))
 		}
 
 	}
 
 	//通知子组件协程退出
-	//cancel()
 	core.Cancel()
 
 }

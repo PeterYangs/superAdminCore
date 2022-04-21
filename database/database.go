@@ -20,7 +20,7 @@ func connect() {
 	var err error
 
 	dsn := os.Getenv("DB_USERNAME") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_DATABASE") + "?charset=utf8mb4&parseTime=True&loc=Local"
-	//mysql.Open
+
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -29,16 +29,11 @@ func connect() {
 
 	if err != nil {
 
-		//panic(err)
 		fmt.Println(err)
 
 	}
 
-	//db.L
-
 	s, _ := db.DB()
-
-	//fmt.Println("数据库连接成功。。。")
 
 	//连接池打开最大连接数
 	s.SetMaxOpenConns(cast.ToInt(os.Getenv("DB_MAX_OPEN_CONNS")))
@@ -55,8 +50,6 @@ func GetDb() *gorm.DB {
 
 	//数据库连接单例
 	mysqlOnce.Do(func() {
-
-		//fmt.Println("数据库开始连接。。。")
 
 		connect()
 

@@ -8,6 +8,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/artisan/queue"
 	"github.com/manifoldco/promptui"
 	"log"
+	"runtime/debug"
 )
 
 type Artisan interface {
@@ -54,7 +55,7 @@ func RunArtisan(artisan ...Artisan) {
 
 	if !ok {
 
-		log.Println("命令不存在")
+		log.Println("命令不存在", string(debug.Stack()))
 
 		return
 	}
