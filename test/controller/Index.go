@@ -16,12 +16,6 @@ func Test(c *contextPlus.Context) *response.Response {
 
 	//logs.NewLogs().Error("123").Stdout()
 
-	go func() {
-
-		panic("gg")
-
-	}()
-
 	return response.Resp().Api(1, "success", "")
 }
 
