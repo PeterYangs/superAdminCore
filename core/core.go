@@ -227,7 +227,7 @@ func (core *Core) Start() {
 
 		}
 
-		args[1] = "block"
+		args[1] = "daemon"
 		core.daemonize(args...)
 
 		fmt.Println("starting")
