@@ -248,9 +248,13 @@ func (core *Core) Start() {
 
 		core.Wait.Wait()
 
+	case "help":
+
+		core.help()
+
 	default:
 
-		fmt.Println("命令不存在")
+		core.help()
 
 	}
 
@@ -1001,6 +1005,20 @@ func (core *Core) createWindowsKill() bool {
 
 	}
 
+}
+
+func (core *Core) help() {
+
+	fmt.Println("start\t\t启动服务.")
+	fmt.Println("\t\t添加-d使用守护进程.")
+	fmt.Println()
+	fmt.Println("stop\t\t停止服务.")
+	fmt.Println()
+	fmt.Println("restart\t\t重启服务.")
+	fmt.Println()
+	fmt.Println("artisan\t\t内置命令行.")
+	fmt.Println()
+	fmt.Println("help\t\t帮助.")
 }
 
 func PathExists(path string) (bool, error) {
