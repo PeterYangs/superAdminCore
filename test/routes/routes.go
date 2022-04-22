@@ -22,12 +22,12 @@ func Routes(r route.Group) {
 	//	return response.Resp().Api(1, "success", "")
 	//}).Bind()
 
-	r.Group("/cache", func(_cache route.Group) {
+	r.Group("cache", func(_cache route.Group) {
 
-		_cache.Registered(route.GET, "/get", cache.Get).Bind()
-		_cache.Registered(route.GET, "/put", cache.Put).Bind()
-		_cache.Registered(route.GET, "/exists", cache.Exists).Bind()
-		_cache.Registered(route.GET, "/remove", cache.Remove).Bind()
+		_cache.Registered(route.GET, "get", cache.Get).Bind()
+		_cache.Registered(route.GET, "put", cache.Put).Bind()
+		_cache.Registered(route.GET, "exists", cache.Exists).Bind()
+		_cache.Registered(route.GET, "remove", cache.Remove).Bind()
 
 	})
 

@@ -6,6 +6,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/response"
 	"github.com/PeterYangs/superAdminCore/route/allUrl"
 	"github.com/gin-gonic/gin"
+	"regexp"
 )
 
 const (
@@ -48,7 +49,7 @@ func (rr *router) Group(path string, callback func(Group), middlewares ...contex
 	g := Group{
 		engine:      rr.engine,
 		middlewares: middlewares,
-		path:        path,
+		path:        dealPath(path),
 	}
 
 	callback(g)
@@ -59,7 +60,7 @@ func (gg Group) Group(path string, callback func(group2 Group), middlewares ...c
 
 	gg.middlewares = append(gg.middlewares, middlewares...)
 
-	gg.path += path
+	gg.path += dealPath(path)
 
 	callback(gg)
 
@@ -72,7 +73,7 @@ func (gg Group) Registered(method int, url string, f func(c *contextPlus.Context
 	return &handler{
 		handlerFunc: f,
 		engine:      gg.engine,
-		url:         gg.path + url,
+		url:         gg.path + dealPath(url),
 		method:      method,
 		middlewares: gg.middlewares,
 	}
@@ -207,4 +208,21 @@ func Load(rr *gin.Engine, routes func(g Group)) {
 
 	}, kernel.Middleware...)
 
+}
+
+func dealPath(path string) string {
+
+	re1, err := regexp.MatchString("^/.*", path)
+
+	if err != nil {
+
+		return path
+	}
+
+	if re1 {
+
+		return path
+	}
+
+	return "/" + path
 }
