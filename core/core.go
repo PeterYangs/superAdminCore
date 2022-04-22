@@ -65,8 +65,10 @@ func NewCore() *Core {
 	if err != nil {
 		panic("配置文件加载失败")
 	}
+
 	//服务退出上下文，主要作用是让其他子组件协程安全退出
 	cxt, cancel := context.WithCancel(context.Background())
+
 	httpFailCxt, httpFailCancel := context.WithCancel(context.Background())
 
 	return &Core{Cxt: cxt, Cancel: cancel, Wait: waitTree.NewWaitTree(waitTree.Background()), httpFailCxt: httpFailCxt, httpFailCancel: httpFailCancel}
@@ -283,17 +285,6 @@ func (core *Core) loadService() {
 	//退出信号
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	//服务退出上下文，主要作用是让其他子组件协程安全退出
-	//cxt, cancel := context.WithCancel(context.Background())
-	//
-	//wait := sync.WaitGroup{}
-
-	//core.Cxt = cxt
-	//
-	//core.Cancel = cancel
-	//
-	//core.Wait = &wait
-
 	core.Sigs = sigs
 
 	//检测退出信号
@@ -345,8 +336,6 @@ func (core *Core) daemonize(args ...string) {
 			return
 
 		}
-
-		//panic("sudo -u " + runUser + " " + tools.Join(" ", args))
 
 		//以其他用户运行服务，源命令(sudo -u nginx ./main start)
 		cmd := gcmd2.NewCommand("sudo -u "+runUser+" "+tools.Join(" ", args)+" ", context.TODO())
@@ -479,8 +468,6 @@ func (core *Core) out(st io.ReadCloser) {
 				return
 			}
 
-			//log.Println(readErr, string(debug.Stack()))
-
 			return
 		}
 
@@ -520,8 +507,6 @@ func (core *Core) err(st io.ReadCloser) {
 				return
 			}
 
-			//log.Println(readErr, string(debug.Stack()))
-
 			return
 		}
 
@@ -536,60 +521,9 @@ func (core *Core) stop() error {
 
 	fmt.Println("stopping!!")
 
+	_ = core.killDaemon()
+
 	sysType := runtime.GOOS
-
-	d, _ := PathExists("logs/daemon.pid")
-
-	var dCmd *exec.Cmd
-
-	var dErr error
-
-	if d {
-
-		dPid, err := read.Open("logs/daemon.pid").Read()
-
-		if err != nil {
-
-			goto Stop
-
-		}
-
-		if sysType == `windows` {
-
-			if core.createWindowsKill() {
-
-				dCmd = exec.Command("cmd", "/c", ".\\logs\\kill.exe -SIGINT "+string(dPid))
-			} else {
-
-				dCmd = exec.Command("cmd", "/c", "taskkill /f /pid "+string(dPid))
-			}
-
-		}
-
-		if sysType == `linux` {
-
-			dCmd = exec.Command("bash", "-c", "kill "+string(dPid))
-		}
-
-		dErr = dCmd.Start()
-
-		if dErr != nil {
-
-			goto Stop
-
-		}
-
-		dErr = dCmd.Wait()
-
-		if dErr != nil {
-
-			goto Stop
-
-		}
-
-	}
-
-Stop:
 
 	b, err := PathExists("logs/run.pid")
 
@@ -694,11 +628,11 @@ Stop:
 
 				wait := gcmd2.NewCommand("tasklist|findstr   "+string(pid), context.TODO())
 
-				_, waitErr := wait.CombinedOutput()
+				bb, waitErr := wait.CombinedOutput()
+
+				fmt.Println(string(bb))
 
 				if waitErr != nil {
-
-					//signal.
 
 					fmt.Println("stopped!!")
 
@@ -714,16 +648,66 @@ Stop:
 	return nil
 }
 
+func (core *Core) killDaemon() error {
+
+	sysType := runtime.GOOS
+
+	d, _ := PathExists("logs/daemon.pid")
+
+	var dCmd *exec.Cmd
+
+	var dErr error
+
+	if d {
+
+		dPid, err := read.Open("logs/daemon.pid").Read()
+
+		if err != nil {
+
+			return err
+
+		}
+
+		if sysType == `windows` {
+
+			if core.createWindowsKill() {
+
+				dCmd = exec.Command("cmd", "/c", ".\\logs\\kill.exe -SIGINT "+string(dPid))
+			} else {
+
+				dCmd = exec.Command("cmd", "/c", "taskkill /f /pid "+string(dPid))
+			}
+
+		}
+
+		if sysType == `linux` {
+
+			dCmd = exec.Command("bash", "-c", "kill "+string(dPid))
+		}
+
+		dErr = dCmd.Start()
+
+		if dErr != nil {
+
+			return dErr
+
+		}
+
+		dErr = dCmd.Wait()
+
+		if dErr != nil {
+
+			return dErr
+
+		}
+
+	}
+
+	return nil
+}
+
 //框架主进程
 func (core *Core) serverStart() {
-
-	//go func() {
-	//
-	//	time.Sleep(20 * time.Second)
-	//
-	//	panic("异常测试")
-	//
-	//}()
 
 	//服务id生成
 	kernel.IdInit()
@@ -793,9 +777,6 @@ func (core *Core) logInit() {
 }
 
 func (core *Core) http() {
-
-	//加载全局中间件
-	//kernel.Load()
 
 	srv := &http_.Server{}
 
@@ -910,7 +891,6 @@ func (core *Core) boot() {
 			if err == nil && str == "success" {
 
 				//开启任务调度
-				//go crontab.Run(core.Wait)
 				if core.Crontab != nil {
 
 					go crontab.Run(core.Wait, core.Crontab)
