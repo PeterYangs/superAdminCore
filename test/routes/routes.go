@@ -6,6 +6,7 @@ import (
 	"github.com/PeterYangs/superAdminCore/response"
 	"github.com/PeterYangs/superAdminCore/route"
 	"github.com/PeterYangs/superAdminCore/test/controller"
+	"github.com/PeterYangs/superAdminCore/test/controller/cache"
 )
 
 func Routes(r route.Group) {
@@ -20,6 +21,15 @@ func Routes(r route.Group) {
 	//
 	//	return response.Resp().Api(1, "success", "")
 	//}).Bind()
+
+	r.Group("/cache", func(_cache route.Group) {
+
+		_cache.Registered(route.GET, "/get", cache.Get).Bind()
+		_cache.Registered(route.GET, "/put", cache.Put).Bind()
+		_cache.Registered(route.GET, "/exists", cache.Exists).Bind()
+		_cache.Registered(route.GET, "/remove", cache.Remove).Bind()
+
+	})
 
 	r.Registered(route.GET, "/ip", func(c *contextPlus.Context) *response.Response {
 

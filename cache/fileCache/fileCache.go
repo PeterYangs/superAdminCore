@@ -138,6 +138,26 @@ func (f *fileCache) Get(key string) (string, error) {
 	return v.Data, err
 }
 
+func (f *fileCache) Remove(key string) error {
+
+	d := secret.NewDes()
+
+	fileName, err := d.Encyptog3DES([]byte(key), []byte(os.Getenv("KEY")))
+
+	if err != nil {
+
+		return err
+	}
+
+	fileName_ := string(fileName.ToBase64())
+
+	dirName := tools.SubStr(fileName_, 0, 2) + "/" + tools.SubStr(fileName_, 2, 2)
+
+	os.Remove(conf.Get("file_cache_path").(string) + "/" + dirName + "/" + fileName_)
+
+	return nil
+}
+
 func (f *fileCache) Exists(key string) bool {
 
 	d := secret.NewDes()

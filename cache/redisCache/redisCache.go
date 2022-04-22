@@ -30,6 +30,13 @@ func (r *redisCache) Get(key string) (string, error) {
 
 }
 
+func (r *redisCache) Remove(key string) error {
+
+	_, err := redis.GetClient().Del(context.Background(), conf.Get("cache_prefix").(string)+":"+key).Result()
+
+	return err
+}
+
 func (r *redisCache) Exists(key string) bool {
 
 	num, err := redis.GetClient().Exists(context.Background(), conf.Get("cache_prefix").(string)+":"+key).Result()
