@@ -2,6 +2,7 @@ package crontab
 
 import (
 	"github.com/PeterYangs/waitTree"
+	"github.com/spf13/cast"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func Run(wait *waitTree.WaitTree, Registered func(*Crontab)) {
 
 	delay := true
 
-	var diff time.Duration
+	//var diff time.Duration
 
 	for {
 
@@ -35,7 +36,9 @@ func Run(wait *waitTree.WaitTree, Registered func(*Crontab)) {
 					break
 				}
 
-				time.Sleep(1 * time.Second)
+				//time.Sleep(1 * time.Second)
+
+				time.Sleep(200 * time.Millisecond)
 
 			}
 
@@ -44,10 +47,13 @@ func Run(wait *waitTree.WaitTree, Registered func(*Crontab)) {
 		if !start {
 
 			//消除时间误差
-			time.Sleep(1*time.Minute - diff)
+			//time.Sleep(time.Minute * 1)
+
+			time.Sleep(time.Duration((time.Duration((time.Minute*1).Seconds()-cast.ToFloat64(time.Now().Second())) * time.Second).Seconds()) * time.Second)
+
 		}
 
-		startTime := time.Now()
+		//startTime := time.Now()
 
 		now := time.Now()
 
@@ -56,7 +62,7 @@ func Run(wait *waitTree.WaitTree, Registered func(*Crontab)) {
 		start = false
 
 		//计算时间误差
-		diff = time.Now().Sub(startTime)
+		//diff = time.Now().Sub(startTime)
 
 		//fmt.Println(diff)
 
