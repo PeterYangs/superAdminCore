@@ -141,6 +141,15 @@ func (core *Core) Start() {
 	//直接运行则为阻塞模式，用于开发模式
 	if len(args) == 1 {
 
+		ok, _ := PathExists("logs/run.pid")
+
+		if ok {
+
+			fmt.Println("服务正在运行！")
+
+			return
+		}
+
 		args = append(args, "block")
 
 		core.block(args...)
@@ -151,6 +160,15 @@ func (core *Core) Start() {
 	switch args[1] {
 
 	case "start":
+
+		ok, _ := PathExists("logs/run.pid")
+
+		if ok {
+
+			fmt.Println("服务正在运行！")
+
+			return
+		}
 
 		//后台运行模式
 		if daemon {
