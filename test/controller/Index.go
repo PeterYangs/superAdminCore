@@ -9,7 +9,11 @@ import (
 
 func Ping(c *contextPlus.Context) *response.Response {
 
-	return response.Resp().Api(1, "success", c.Session().Key())
+	//e := errors.WithStack(ee.New("nice"))
+	//
+	//fmt.Println(fmt.Sprintf("%+v", e))
+
+	return response.Resp().Api(1, "success", "ping")
 }
 
 func Test(c *contextPlus.Context) *response.Response {

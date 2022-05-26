@@ -3,7 +3,7 @@ module github.com/PeterYangs/superAdminCore
 go 1.16
 
 require (
-	github.com/PeterYangs/gcmd2 v0.0.5
+	github.com/PeterYangs/gcmd2 v0.0.8
 	github.com/PeterYangs/tools v0.2.38
 	github.com/PeterYangs/waitTree v0.0.6
 	github.com/fogleman/gg v1.3.0

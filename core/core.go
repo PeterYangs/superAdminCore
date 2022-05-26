@@ -322,53 +322,22 @@ func (core *Core) daemonize(args ...string) {
 
 	sysType := runtime.GOOS
 
-	if sysType == `windows` {
+	cmd := gcmd2.NewCommand(tools.Join(" ", args)+" ", context.TODO())
 
-		cmd := gcmd2.NewCommand(tools.Join(" ", args)+" ", context.TODO())
+	if sysType == "linux" {
 
-		err := cmd.StartNoWait()
+		cmd.SetUser(os.Getenv("RUN_USER"))
 
-		if err != nil {
-
-			log.Println(err, string(debug.Stack()))
-		}
-
-		return
 	}
 
-	if sysType == "linux" || sysType == "darwin" {
+	err := cmd.StartNoWaitOutErr()
 
-		runUser := os.Getenv("RUN_USER")
+	if err != nil {
 
-		if runUser == "" || runUser == "nobody" {
-
-			cmd := gcmd2.NewCommand(tools.Join(" ", args)+" ", context.TODO())
-
-			err := cmd.StartNoWait()
-
-			if err != nil {
-
-				log.Println(err, string(debug.Stack()))
-			}
-
-			return
-
-		}
-
-		//以其他用户运行服务，源命令(sudo -u nginx ./main start)
-		cmd := gcmd2.NewCommand("sudo -u "+runUser+" "+tools.Join(" ", args)+" ", context.TODO())
-
-		err := cmd.StartNoWait()
-
-		if err != nil {
-
-			log.Println(err, string(debug.Stack()))
-		}
-
-		return
+		log.Println(err, string(debug.Stack()))
 	}
 
-	fmt.Println("平台暂不支持")
+	time.Sleep(1500 * time.Millisecond)
 
 }
 
@@ -395,8 +364,22 @@ func (core *Core) block(args ...string) {
 
 		}
 
-		//以其他用户运行服务，源命令(sudo -u nginx ./main start)
-		cmd := gcmd2.NewCommand("sudo -u "+runUser+" "+tools.Join(" ", args), context.TODO())
+		//以其他用户运行服务
+		cmd := gcmd2.NewCommand(tools.Join(" ", args), context.TODO())
+
+		go func(s chan os.Signal, c *gcmd2.Gcmd2) {
+
+			select {
+
+			case <-s:
+
+				c.GetCmd().Process.Signal(syscall.SIGINT)
+
+			}
+
+		}(sigs, cmd)
+
+		cmd.SetUser(runUser)
 
 		core.dealOut(cmd)
 
