@@ -1,10 +1,10 @@
 package route
 
 import (
-	"github.com/PeterYangs/superAdminCore/contextPlus"
-	"github.com/PeterYangs/superAdminCore/kernel"
-	"github.com/PeterYangs/superAdminCore/response"
-	"github.com/PeterYangs/superAdminCore/route/allUrl"
+	"github.com/PeterYangs/superAdminCore/v2/contextPlus"
+	"github.com/PeterYangs/superAdminCore/v2/kernel"
+	"github.com/PeterYangs/superAdminCore/v2/response"
+	"github.com/PeterYangs/superAdminCore/v2/route/allUrl"
 	"github.com/gin-gonic/gin"
 	"regexp"
 )
@@ -184,6 +184,8 @@ func getDataType(data interface{}, c *contextPlus.Context) {
 }
 
 func Load(rr *gin.Engine, routes func(g Group)) {
+
+	//fmt.Println("xxxxxxxxxxxxxxxxxxxxxx")
 
 	_r := newRouter(rr)
 

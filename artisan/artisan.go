@@ -2,10 +2,10 @@ package artisan
 
 import (
 	"fmt"
-	"github.com/PeterYangs/superAdminCore/artisan/key"
-	make2 "github.com/PeterYangs/superAdminCore/artisan/make"
-	"github.com/PeterYangs/superAdminCore/artisan/migrates"
-	"github.com/PeterYangs/superAdminCore/artisan/queue"
+	"github.com/PeterYangs/superAdminCore/v2/artisan/key"
+	make2 "github.com/PeterYangs/superAdminCore/v2/artisan/make"
+	"github.com/PeterYangs/superAdminCore/v2/artisan/migrates"
+	"github.com/PeterYangs/superAdminCore/v2/artisan/queue"
 	"github.com/manifoldco/promptui"
 	"log"
 	"runtime/debug"

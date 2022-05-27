@@ -1,10 +1,11 @@
-module github.com/PeterYangs/superAdminCore
+module github.com/PeterYangs/superAdminCore/v2
 
 go 1.16
 
 require (
 	github.com/PeterYangs/gcmd2 v0.0.8
-	github.com/PeterYangs/tools v0.2.38
+	github.com/PeterYangs/gostage v0.0.9
+	github.com/PeterYangs/tools v0.2.40
 	github.com/PeterYangs/waitTree v0.0.6
 	github.com/fogleman/gg v1.3.0
 	github.com/gin-contrib/pprof v1.3.0
@@ -15,7 +16,7 @@ require (
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/satori/go.uuid v1.2.0
-	github.com/spf13/cast v1.4.1
+	github.com/spf13/cast v1.5.0
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/mod v0.3.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac

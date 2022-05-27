@@ -1,8 +1,8 @@
 package register
 
 import (
-	"github.com/PeterYangs/superAdminCore/queue/task/demo"
-	"github.com/PeterYangs/superAdminCore/queue/template"
+	"github.com/PeterYangs/superAdminCore/v2/queue/task/demo"
+	"github.com/PeterYangs/superAdminCore/v2/queue/template"
 	//namespace
 	"sync"
 )

@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"github.com/PeterYangs/superAdminCore/cache"
-	"github.com/PeterYangs/superAdminCore/contextPlus"
-	"github.com/PeterYangs/superAdminCore/response"
+	"github.com/PeterYangs/superAdminCore/v2/cache"
+	"github.com/PeterYangs/superAdminCore/v2/contextPlus"
+	"github.com/PeterYangs/superAdminCore/v2/response"
 )
 
 func Get(c *contextPlus.Context) *response.Response {

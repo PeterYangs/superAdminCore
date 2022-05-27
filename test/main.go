@@ -1,19 +1,20 @@
 package main
 
 import (
-	"github.com/PeterYangs/superAdminCore/contextPlus"
-	"github.com/PeterYangs/superAdminCore/core"
-	"github.com/PeterYangs/superAdminCore/middleware/session"
-	"github.com/PeterYangs/superAdminCore/test/artisan"
-	"github.com/PeterYangs/superAdminCore/test/conf"
-	"github.com/PeterYangs/superAdminCore/test/crontab"
-	"github.com/PeterYangs/superAdminCore/test/queue"
-	"github.com/PeterYangs/superAdminCore/test/routes"
+	"context"
+	"github.com/PeterYangs/superAdminCore/v2/contextPlus"
+	"github.com/PeterYangs/superAdminCore/v2/core"
+	"github.com/PeterYangs/superAdminCore/v2/middleware/session"
+	"github.com/PeterYangs/superAdminCore/v2/test/artisan"
+	"github.com/PeterYangs/superAdminCore/v2/test/conf"
+	"github.com/PeterYangs/superAdminCore/v2/test/crontab"
+	"github.com/PeterYangs/superAdminCore/v2/test/queue"
+	"github.com/PeterYangs/superAdminCore/v2/test/routes"
 )
 
 func main() {
 
-	c := core.NewCore()
+	c := core.NewCore(context.Background())
 
 	//加载配置(这是第一步)
 	c.LoadConf(conf.Conf)

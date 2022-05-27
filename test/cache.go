@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/PeterYangs/superAdminCore/cache"
-	"github.com/PeterYangs/superAdminCore/core"
-	"github.com/PeterYangs/superAdminCore/test/conf"
+	"github.com/PeterYangs/superAdminCore/v2/cache"
+	"github.com/PeterYangs/superAdminCore/v2/core"
+	"github.com/PeterYangs/superAdminCore/v2/test/conf"
 	"github.com/joho/godotenv"
 )
 
@@ -19,7 +20,7 @@ func init() {
 
 func main() {
 
-	c := core.NewCore()
+	c := core.NewCore(context.Background())
 
 	//加载配置(这是第一步)
 	c.LoadConf(conf.Conf)

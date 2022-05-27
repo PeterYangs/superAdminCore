@@ -2,8 +2,8 @@ package exception
 
 import (
 	"fmt"
-	"github.com/PeterYangs/superAdminCore/component/logs"
-	"github.com/PeterYangs/superAdminCore/contextPlus"
+	"github.com/PeterYangs/superAdminCore/v2/component/logs"
+	"github.com/PeterYangs/superAdminCore/v2/contextPlus"
 	"github.com/gin-gonic/gin"
 	"os"
 )

@@ -1,8 +1,8 @@
 package kernel
 
 import (
-	"github.com/PeterYangs/superAdminCore/contextPlus"
-	"github.com/PeterYangs/superAdminCore/middleware/exception"
+	"github.com/PeterYangs/superAdminCore/v2/contextPlus"
+	"github.com/PeterYangs/superAdminCore/v2/middleware/exception"
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -1,8 +1,8 @@
 package artisan
 
 import (
-	"github.com/PeterYangs/superAdminCore/artisan"
-	"github.com/PeterYangs/superAdminCore/test/artisan/demo"
+	"github.com/PeterYangs/superAdminCore/v2/artisan"
+	"github.com/PeterYangs/superAdminCore/v2/test/artisan/demo"
 )
 
 func Artisan() []artisan.Artisan {

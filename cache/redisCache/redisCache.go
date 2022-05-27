@@ -2,8 +2,8 @@ package redisCache
 
 import (
 	"context"
-	"github.com/PeterYangs/superAdminCore/conf"
-	"github.com/PeterYangs/superAdminCore/redis"
+	"github.com/PeterYangs/superAdminCore/v2/conf"
+	"github.com/PeterYangs/superAdminCore/v2/redis"
 	"time"
 )
 

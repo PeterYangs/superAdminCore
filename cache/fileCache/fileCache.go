@@ -3,7 +3,7 @@ package fileCache
 import (
 	"encoding/json"
 	"errors"
-	"github.com/PeterYangs/superAdminCore/conf"
+	"github.com/PeterYangs/superAdminCore/v2/conf"
 	"github.com/PeterYangs/tools"
 	"github.com/PeterYangs/tools/secret"
 	"io/ioutil"

@@ -2,8 +2,8 @@ package redis
 
 import (
 	"context"
-	"github.com/PeterYangs/superAdminCore/component/logs"
-	"github.com/PeterYangs/superAdminCore/conf"
+	"github.com/PeterYangs/superAdminCore/v2/component/logs"
+	"github.com/PeterYangs/superAdminCore/v2/conf"
 	"github.com/go-redis/redis/v8"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cast"
