@@ -56,6 +56,10 @@ func NewCore(cxt context.Context) *Core {
 
 	stage := gostage.NewStage(cxt)
 
+	stage.LoadConfig(gostage.Config{
+		RunPath: os.Getenv("RUN_USER"),
+	})
+
 	//服务退出上下文，主要作用是让其他子组件协程安全退出
 	ct, cancel := context.WithCancel(stage.GetCxt())
 
