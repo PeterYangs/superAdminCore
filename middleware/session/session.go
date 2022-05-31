@@ -42,7 +42,9 @@ func StartSession(c *contextPlus.Context) {
 
 			if err != nil {
 
-				logs.NewLogs().Error(err.Error())
+				//logs.NewLogs().Error(err.Error())
+
+				logs.NewLogger().Error(err.Error())
 
 				return
 			}
@@ -73,7 +75,9 @@ func StartSession(c *contextPlus.Context) {
 
 	if err != nil {
 
-		logs.NewLogs().Error(err.Error())
+		//logs.NewLogs().Error(err.Error())
+
+		logs.NewLogger().Error(err.Error())
 
 		return
 	}

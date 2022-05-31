@@ -2,6 +2,8 @@ github.com/PeterYangs/gcmd2 v0.0.8 h1:FUmhqsT4qsU4dION+whwRo932b0kswo7gOPunA3jZ2
 github.com/PeterYangs/gcmd2 v0.0.8/go.mod h1:xuuql5mIrLbEJ3iiF0qNRy5lJj1C16xR+ENylaMTv24=
 github.com/PeterYangs/gostage v0.0.9 h1:76uVY08G4MpwUpavpSeru6Zq+8UwIIjwR3dOF31ft9w=
 github.com/PeterYangs/gostage v0.0.9/go.mod h1:Tag5Fg4fCq48tdZdSxpzeyMEDAbChg2SyjgBs3CvStk=
+github.com/PeterYangs/gostage v0.0.10 h1:Qh8Eig8vk9ADCi3OelM1pLMfGGGYg5bQi6C8VPsEnf0=
+github.com/PeterYangs/gostage v0.0.10/go.mod h1:xviwGbHD8TqXjmx+zjzoXH1AZXWV0/zKbOS0K5VC8MU=
 github.com/PeterYangs/tools v0.2.40 h1:AP3ZijnFzCJw7sfzoZEaJkHPka+Xgoj+3JO76v8oW5g=
 github.com/PeterYangs/tools v0.2.40/go.mod h1:DyUXMnXUCN5PUgroBmKnbr11ZC8kYqY60WdnOoMnc+o=
 github.com/PeterYangs/waitTree v0.0.6 h1:r9DQqKqA5jooI0mMKMQu2Q32aOMhAJqrZoG//i2sZ3o=
@@ -76,6 +78,8 @@ github.com/google/go-cmp v0.5.7 h1:81/ik6ipDQS2aGcBfIN5dHDB36BwrStyeAQquSYCV4o=
 github.com/google/go-cmp v0.5.7/go.mod h1:n+brtR0CgQNWTVd5ZUFpTBC8YFBDLK/h/bpaJ8/DtOE=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
+github.com/huandu/go-assert v1.1.5/go.mod h1:yOLvuqZwmcHIC5rIzrBhT7D3Q9c3GFnd0JrPVhn/06U=
+github.com/huandu/go-clone v1.3.2/go.mod h1:bPJ9bAG8fjyAEBRFt6toaGUZcGFGL3f6g5u6yW+9W14=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.2 h1:eVKgfIdy9b6zbWBMgFpfDPoAMifwSZagU9HmEU6zgiI=

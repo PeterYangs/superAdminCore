@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/PeterYangs/gostage"
 	"github.com/PeterYangs/superAdminCore/v2/artisan"
-	"github.com/PeterYangs/superAdminCore/v2/component/logs"
 	"github.com/PeterYangs/superAdminCore/v2/conf"
 	"github.com/PeterYangs/superAdminCore/v2/contextPlus"
 	"github.com/PeterYangs/superAdminCore/v2/crontab"
@@ -156,7 +155,8 @@ func (core *Core) Start() {
 		artisan.RunArtisan(core.Artisan()...)
 
 		return "", nil
-	})
+
+	}).NoConnect()
 
 	err := core.stage.Run()
 
@@ -196,7 +196,7 @@ func (core *Core) serverStart() {
 	go core.quitDeal()
 
 	//日志模块初始化
-	core.logInit()
+	//core.logInit()
 
 	//加载子服务
 	go core.boot()
@@ -241,18 +241,18 @@ func (core *Core) quitDeal() {
 
 }
 
-//启动日志服务
-func (core *Core) logInit() {
-
-	//日志退出标记
-	core.Wait.Add(1)
-
-	l := logs.CreateLogs()
-
-	//日志写入任务
-	go l.Task(core.Cxt, core.Wait)
-
-}
+////启动日志服务
+//func (core *Core) logInit() {
+//
+//	//日志退出标记
+//	core.Wait.Add(1)
+//
+//	l := logs.CreateLogs()
+//
+//	//日志写入任务
+//	go l.Task(core.Cxt, core.Wait)
+//
+//}
 
 //加载子服务
 func (core *Core) boot() {

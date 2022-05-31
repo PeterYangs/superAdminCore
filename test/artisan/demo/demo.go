@@ -1,6 +1,6 @@
 package demo
 
-import "fmt"
+import "github.com/PeterYangs/superAdminCore/v2/component/logs"
 
 type Demo struct {
 }
@@ -12,6 +12,7 @@ func (d Demo) GetName() string {
 
 func (d Demo) ArtisanRun() {
 
-	fmt.Println("自定义命令")
+	logs.NewLogger().Error("123")
+	logs.NewLogger().Info("123")
 
 }

@@ -18,7 +18,9 @@ func Exception(c *contextPlus.Context) {
 
 			msg := fmt.Sprint(r)
 
-			msg = logs.NewLogs().Error(msg).Message()
+			//msg = logs.NewLogs().Error(msg).Message()
+
+			msg = logs.NewLogger().Error(msg).Message()
 
 			if os.Getenv("APP_DEBUG") == "true" {
 

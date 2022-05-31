@@ -48,7 +48,7 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 
 			msg := fmt.Sprint(r)
 
-			logs.NewLogs().Error(msg)
+			logs.NewLogger().Error(msg)
 
 		}
 	}()
@@ -141,7 +141,9 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 
 		if err != nil {
 
-			logs.NewLogs().Error(err.Error()).Stdout()
+			//logs.NewLogs().Error(err.Error()).Stdout()
+
+			logs.NewLogger().Error(err.Error()).Println()
 
 			continue
 		}
@@ -157,7 +159,9 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 
 		if err != nil {
 
-			logs.NewLogs().Error(err.Error()).Stdout()
+			//logs.NewLogs().Error(err.Error()).Stdout()
+
+			logs.NewLogger().Error(err.Error()).Println()
 
 			continue
 		}
@@ -180,7 +184,9 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 
 		if runErr != nil {
 
-			logs.NewLogs().Error(runErr.Error()).Stdout()
+			//logs.NewLogs().Error(runErr.Error()).Stdout()
+
+			logs.NewLogger().Error(runErr.Error()).Println()
 
 			if qs.TryTime <= 0 {
 
@@ -194,7 +200,7 @@ func Run(cxt context.Context, wait *waitTree.WaitTree) {
 
 			if jsonErr != nil {
 
-				logs.NewLogs().Error(jsonErr.Error()).Stdout()
+				logs.NewLogger().Error(jsonErr.Error()).Println()
 
 				continue
 			}
@@ -219,7 +225,9 @@ func checkDelay(cxt context.Context, wait *waitTree.WaitTree) {
 
 			msg := fmt.Sprint(r)
 
-			logs.NewLogs().Error(msg)
+			//logs.NewLogs().Error(msg)
+
+			logs.NewLogger().Error(msg)
 
 		}
 	}()

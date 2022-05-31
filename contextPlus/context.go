@@ -304,7 +304,7 @@ func (s *Session) Exist(key string) bool {
 
 	if err != nil {
 
-		logs.NewLogs().Error(err.Error())
+		logs.NewLogger().Error(err.Error())
 
 		return false
 	}

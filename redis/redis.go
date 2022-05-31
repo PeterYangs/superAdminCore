@@ -59,7 +59,9 @@ func connect() {
 
 		//panic(re.Err())
 
-		logs.NewLogs().Error(re.Err().Error())
+		//logs.NewLogs().Error(re.Err().Error())
+
+		logs.NewLogger().Error(re.Err().Error())
 
 		//return
 

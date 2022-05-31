@@ -194,7 +194,7 @@ func (s *schedule) Function(fun func()) {
 
 				msg := fmt.Sprint(r)
 
-				msg = logs.NewLogs().Error(msg).Message()
+				logs.NewLogger().Error(msg)
 
 				fmt.Println(msg)
 

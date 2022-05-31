@@ -38,7 +38,9 @@ func Routes(r route.Group) {
 
 	r.Registered(route.GET, "/log", func(c *contextPlus.Context) *response.Response {
 
-		logs.NewLogs().Debug("Debug")
+		//logs.NewLogs().Debug("Debug")
+
+		logs.NewLogger().Debug("Debug")
 
 		return response.Resp().Api(1, "success", "")
 	}).Bind()
